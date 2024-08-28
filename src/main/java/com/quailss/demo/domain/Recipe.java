@@ -14,14 +14,14 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Recipe {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long recipe_id;
 
     private String name;
 
     private BigDecimal difficulty_level;
 
-    private BigDecimal score;
+    private BigDecimal average;
 
     private String image_url;
 
@@ -30,7 +30,7 @@ public class Recipe {
     private String keyword3;
     private String keyword4;
 
-    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL)
     private List<Bookmark> bookmarkList = new ArrayList<>();
 
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -20,7 +20,7 @@ import java.util.List;
 public class Member {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long member_id;
 
     private String email;
@@ -30,8 +30,6 @@ public class Member {
     private String password;
 
     private String name;
-
-    private Integer age;
 
     @Enumerated(EnumType.STRING)
     private Provider provider;
