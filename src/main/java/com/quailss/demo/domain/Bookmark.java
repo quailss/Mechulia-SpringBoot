@@ -3,9 +3,6 @@ package com.quailss.demo.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 @Getter
 @Builder
@@ -19,7 +16,7 @@ public class Bookmark {
 
     @ManyToOne
     @JoinColumn(name = "member_id", nullable = false)
-    private Membership membership;
+    private Member member;
 
     @ManyToOne
     @JoinColumn(name = "recipe_id", nullable = false)

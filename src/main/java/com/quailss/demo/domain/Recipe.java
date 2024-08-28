@@ -3,6 +3,7 @@ package com.quailss.demo.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,10 +19,9 @@ public class Recipe {
 
     private String name;
 
-    private Double difficulty_level;
+    private BigDecimal difficulty_level;
 
-
-    private Double score;
+    private BigDecimal score;
 
     private String image_url;
 
@@ -31,8 +31,8 @@ public class Recipe {
     private String keyword4;
 
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Bookmark> bookmarkList;
+    private List<Bookmark> bookmarkList = new ArrayList<>();
 
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Review> reviewList;
+    private List<Review> reviewList = new ArrayList<>();
 }
