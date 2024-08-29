@@ -3,51 +3,61 @@ package com.quailss.demo.controller;
 import com.quailss.demo.domain.Member;
 import com.quailss.demo.domain.dto.RegisterDto;
 import com.quailss.demo.service.AuthService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
     private final AuthService authService;
 
     @GetMapping("/register")
-    public String showRegisterForm(Model model){
+    public ResponseEntity<String> showRegisterForm(Model model){
         model.addAttribute("member", new RegisterDto());
-        return "register";
+        return ResponseEntity.ok("register success");
     }
 
     //회원 등록
     @PostMapping("/register")
-    public String registerMember(@ModelAttribute("member") @Valid RegisterDto registerDto, BindingResult bindingResult,
-                                 Model model, RedirectAttributes redirectAttributes, HttpServletRequest request) {
-        if(bindingResult.hasErrors())
-            return "/";
+    public ResponseEntity<Map<String, Object>> registerMember(@ModelAttribute("member") @Valid RegisterDto registerDto, BindingResult bindingResult) {
+        Map<String, Object> response = new HashMap<>();
+
+        if (bindingResult.hasErrors()) {
+            response.put("register success", false);
+            response.put("message", "Validation errors occurred.");
+            return ResponseEntity.badRequest().body(response);
+        }
 
         try {
             authService.register(registerDto);
-            redirectAttributes.addFlashAttribute("registerSuccess", true);
-            return "redirect:/login";
+            response.put("success", true);
+            response.put("message", "Registration successful.");
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return "/";
+            response.put("success", false);
+            response.put("message", "Registration failed.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 
     //아이디 중복 검사
     @PostMapping("/check-email")
-    public Boolean findByEmail(@RequestParam("email") String email){
+    public ResponseEntity<Map<String, Boolean>> findByEmail(@RequestParam("email") String email){
         Optional<Member> optionalMember = authService.findByEmail(email);
 
-        if(optionalMember.isEmpty())
-            return true;    //사용 가능
-        return false;
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("available", optionalMember.isEmpty());
+
+        return ResponseEntity.ok(response);
     }
 }
