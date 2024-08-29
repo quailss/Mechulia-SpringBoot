@@ -2,6 +2,7 @@ package com.quailss.demo.service;
 
 import com.quailss.demo.domain.Member;
 import com.quailss.demo.domain.dto.RegisterDto;
+import com.quailss.demo.domain.enums.Provider;
 import com.quailss.demo.repository.AuthRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,8 +23,8 @@ public class AuthService {
                 .email(registerDto.getEmail())
                 .password(encryptedPassword)
                 .name(registerDto.getName())
-                .provider(registerDto.getProvider())
-                .provider_id(registerDto.getProvider_id())
+                .provider(null)
+                .provider_id(null)
                 .build();
 
         Member registeredMember = authRepository.save(member);
@@ -31,5 +32,9 @@ public class AuthService {
 
     public Optional<Member> findByEmail(String email){
         return authRepository.findByEmail(email);
+    }
+
+    public Optional<Member> findByProviderAndProviderId(Provider provider, String providerId) {
+        return authRepository.findByProviderAndProviderId(provider, providerId);
     }
 }
