@@ -13,6 +13,7 @@ import java.util.List;
 
 @Entity
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -25,14 +26,13 @@ public class Member {
 
     private String email;
 
-    private String provider_id;
-
     private String password;
 
     private String name;
 
     @Enumerated(EnumType.STRING)
     private Provider provider;
+    private String provider_id;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<Bookmark> bookmarkList = new ArrayList<>();
