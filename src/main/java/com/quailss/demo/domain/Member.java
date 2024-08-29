@@ -32,7 +32,9 @@ public class Member {
 
     @Enumerated(EnumType.STRING)
     private Provider provider;
+
     private String provider_id;
+    //private String profile_image;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<Bookmark> bookmarkList = new ArrayList<>();
@@ -46,4 +48,9 @@ public class Member {
     private LocalDateTime updated_at;
 
     private LocalDateTime deleted_at;
+
+    /*public void updateProfile(String nickname, String profileImage) {
+        this.name = nickname;
+        this.profile_image = profileImage;
+    }*/
 }
