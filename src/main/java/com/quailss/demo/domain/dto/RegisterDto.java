@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,11 +26,14 @@ public class RegisterDto {
     @NotEmpty(message = "닉네임은 필수입니다.")
     private String name;
 
-    @Nullable
-    private Provider provider;
+    @NotEmpty(message = "유효한 전화번호를 적어주세요")
+    private String phone;
+
+    @NotEmpty(message = "생일을 입력해주세요")
+    private LocalDate birth;
 
     @Nullable
-    private String provider_id;
+    private Provider provider;
 
     @Nullable
     private List<Bookmark> bookmarkList = new ArrayList<>();
