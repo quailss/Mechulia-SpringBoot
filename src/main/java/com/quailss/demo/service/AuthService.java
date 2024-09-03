@@ -19,22 +19,13 @@ public class AuthService {
     public void register(RegisterDto registerDto){
         String encryptedPassword = passwordEncoder.encode(registerDto.getPassword());
 
-        Member member = Member.builder()
-                .email(registerDto.getEmail())
-                .password(encryptedPassword)
-                .name(registerDto.getName())
-                .provider(null)
-                .provider_id(null)
-                .build();
+        Member newMember = new Member(registerDto.getEmail(), encryptedPassword, registerDto.getName());
 
-        Member registeredMember = authRepository.save(member);
+        Member registeredMember = authRepository.save(newMember);
     }
 
     public Optional<Member> findByEmail(String email){
         return authRepository.findByEmail(email);
     }
 
-    public Optional<Member> findByProviderAndProviderId(Provider provider, String providerId) {
-        return authRepository.findByProviderAndProviderId(provider, providerId);
-    }
 }

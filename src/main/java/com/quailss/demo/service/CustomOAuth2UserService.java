@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -21,56 +22,63 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final AuthRepository authRepository;
 
-
     @Override
-    public OAuth2User loadUser(OAuth2UserRequest userRequest) {
-        //루피님
-        return null;
+    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+        // OAuth2UserRequest를 사용하여 사용자 정보를 로드
+        OAuth2User oAuth2User = super.loadUser(userRequest);
+
+        // 클라이언트 이름 (카카오, 네이버 등)을 얻어옴
+        String registrationId = userRequest.getClientRegistration().getRegistrationId(); // kakao, naver 등
+        String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails()
+                .getUserInfoEndpoint().getUserNameAttributeName();
+
+        // 사용자 정보를 맵 형태로 추출
+        Map<String, Object> attributes = oAuth2User.getAttributes();
+
+        // 사용자 정보를 기반으로 CustomOAuth2User를 생성
+        OAuth2User customUser = processOAuth2User(registrationId, userNameAttributeName, attributes);
+
+        return customUser;
     }
-    //카카오
-    private Member registerNewUser(Map<String, Object> attributes, String providerId) {
-        String email = (String) attributes.get("email");
-        String name = (String) attributes.get("nickname");
-        //String profileImage = (String) attributes.get("profile_image");
 
-        Member newMember = Member.builder()
-                .email(email)
-                .name(name)
-                .provider(Provider.KAKAO)
-                .provider_id(providerId)
-        //        .profile_image(profileImage)
-                .build();
+    private OAuth2User processOAuth2User(String registrationId, String userNameAttributeName, Map<String, Object> attributes) {
+        String email;
+        String name;
+        Provider provider;
+        String provider_id;
 
-        return authRepository.save(newMember);
-    }
-    //naver
-    private OAuth2User processOAuth2User(Provider registrationId, Map<String, Object> attributes) {
-        String providerId = (String) attributes.get("id");
-        String email = (String) attributes.get("email");
-
-        Optional<Member> memberOptional = authRepository.findByProviderAndProviderId(registrationId, providerId);
-
-        if (memberOptional.isPresent()) {
-            // 사용자가 이미 존재하는 경우 (로그인)
-            return new DefaultOAuth2User(
-                    Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
-                    attributes,
-                    "name");
+        if ("naver".equals(registrationId)) {
+            Map<String, Object> response = (Map<String, Object>) attributes.get("response");
+            email = (String) response.get("email");
+            name = (String) response.get("name");
+            provider_id = (String) response.get("id");
+            provider = Provider.NAVER;
+        } else if ("kakao".equals(registrationId)) {
+            Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
+            email = (String) kakaoAccount.get("email");
+            name = (String) attributes.get("nickname");
+            provider_id = attributes.get("id").toString();
+            provider = Provider.KAKAO;
         } else {
-            // 사용자가 존재하지 않는 경우 (회원가입)
-            Member newMember = Member.builder()
-                    .email(email)
-                    .name(providerId)
-                    .provider(Provider.NAVER)
-                    .provider_id(providerId)
-                    .build();
-
-            authRepository.save(newMember);
-
-            return new DefaultOAuth2User(
-                    Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
-                    attributes,
-                    "name");
+            throw new OAuth2AuthenticationException("Unsupported provider: " + registrationId);
         }
+        // 소셜 로그인 사용자가 이미 등록되어 있는지 확인
+        Optional<Member> memberOptional = authRepository.findByProviderAndProviderId(provider, provider_id);
+
+        Member member;
+        if (memberOptional.isPresent()) {
+            member = memberOptional.get();
+        } else {
+            // 회원 정보가 없으면 신규 등록
+            member = new Member(email, name, provider, provider_id);
+            authRepository.save(member);
+        }
+        // 필요한 경우 사용자 정보를 업데이트
+        // 예: member.updateProfile(name);
+
+        return new DefaultOAuth2User(
+                Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
+                attributes,
+                userNameAttributeName);
     }
 }
