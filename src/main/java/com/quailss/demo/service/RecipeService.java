@@ -18,4 +18,13 @@ public class RecipeService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "recipe_id"));
         return recipeRepository.findAll(pageable);
     }
+
+    public Page<Recipe> getRecipesByMenu_idAndKeyword(Long menuId, String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "recipe_id"));
+
+        if(menuId == 0)
+            return recipeRepository.findAllByKeyword(keyword, pageable);
+        else
+            return recipeRepository.findAllByMenuIdAndKeyword(keyword, pageable);
+    }
 }

@@ -5,10 +5,7 @@ import com.quailss.demo.service.RecipeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,6 +18,15 @@ public class RecipeController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "15") int size) {
         Page<Recipe> recipes = recipeService.getRecipes(page, size);
+        return ResponseEntity.ok(recipes);
+    }
+
+    @GetMapping("/search/{menu_id}")
+    public ResponseEntity<Page<Recipe>> getRecipes(@PathVariable("menu_id") Long menu_id,
+                                                   @RequestParam String keyword,
+                                                   @RequestParam(defaultValue = "0") int page,
+                                                   @RequestParam(defaultValue = "15") int size){
+        Page<Recipe> recipes = recipeService.getRecipesByMenu_idAndKeyword(menu_id, keyword, page, size);
         return ResponseEntity.ok(recipes);
     }
 }
