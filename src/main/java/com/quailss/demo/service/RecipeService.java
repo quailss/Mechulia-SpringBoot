@@ -25,6 +25,6 @@ public class RecipeService {
         if(menuId == 0)
             return recipeRepository.findAllByKeyword(keyword, pageable);
         else
-            return recipeRepository.findAllByMenuIdAndKeyword(keyword, pageable);
+            return recipeRepository.findAllByMenuIdAndKeyword(menuId, keyword, pageable);
     }
 }
