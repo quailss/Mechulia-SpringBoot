@@ -14,7 +14,7 @@ import lombok.*;
 public class Menu {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long menu_id;
+    private Long id;
 
     private String menu_type;
 }

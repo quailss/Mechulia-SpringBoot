@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long review_id;
+    private Long id;
 
     private BigDecimal score;
 

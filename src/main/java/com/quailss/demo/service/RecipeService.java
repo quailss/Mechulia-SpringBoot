@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class RecipeService {
@@ -26,5 +28,9 @@ public class RecipeService {
             return recipeRepository.findAllByKeyword(keyword, pageable);
         else
             return recipeRepository.findAllByMenuIdAndKeyword(menuId, keyword, pageable);
+    }
+
+    public Optional<Recipe> getRecipe(Long recipeId){
+        return recipeRepository.findById(recipeId);
     }
 }
