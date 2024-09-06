@@ -17,12 +17,12 @@ public class RecipeService {
     private final RecipeRepository recipeRepository;
 
     public Page<Recipe> getRecipes(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "recipe_id"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
         return recipeRepository.findAll(pageable);
     }
 
     public Page<Recipe> getRecipesByMenu_idAndKeyword(Long menuId, String keyword, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "recipe_id"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
 
         if(menuId == 0)
             return recipeRepository.findAllByKeyword(keyword, pageable);
