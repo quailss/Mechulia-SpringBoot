@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 public interface RecipeRepository extends JpaRepository<Recipe, Long> {
     @Query("SELECT rp FROM Recipe rp WHERE rp.keyword1 LIKE %:keyword% OR rp.keyword2 LIKE %:keyword% OR rp.keyword3 LIKE %:keyword% OR rp.keyword4 LIKE %:keyword%")
     Page<Recipe> findAllByKeyword(String keyword, Pageable pageable);
-    @Query("SELECT rp FROM Recipe rp WHERE rp.menu.menu_id=:menu_id " +
+    @Query("SELECT rp FROM Recipe rp WHERE rp.menu.id=:menu_id " +
             "AND rp.keyword1 LIKE %:keyword% OR rp.keyword2 LIKE %:keyword% OR rp.keyword3 LIKE %:keyword% OR rp.keyword4 LIKE %:keyword%")
     Page<Recipe> findAllByMenuIdAndKeyword(Long menu_id, String keyword, Pageable pageable);
 }
