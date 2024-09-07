@@ -21,12 +21,29 @@ public class RecipeController {
         return ResponseEntity.ok(recipes);
     }
 
+    @GetMapping("/category/{menu_id}")
+    public ResponseEntity<Page<Recipe>> getRecipesByCategory(
+            @PathVariable Long menu_id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "15") int size) {
+        Page<Recipe> recipes = recipeService.getRecipesByCategory(menu_id, page, size);
+        return ResponseEntity.ok(recipes);
+    }
+
+    @GetMapping("/main/theme")
+    public ResponseEntity<Page<Recipe>> getRecipesByTheme(@RequestParam String keyword,
+                                                   @RequestParam(defaultValue = "0") int page,
+                                                   @RequestParam(defaultValue = "15") int size){
+        Page<Recipe> recipes = recipeService.getRecipesByMenuIdAndKeyword(Long.valueOf(0), keyword, page, size);
+        return ResponseEntity.ok(recipes);
+    }
+
     @GetMapping("/search/{menu_id}")
-    public ResponseEntity<Page<Recipe>> getRecipes(@PathVariable("menu_id") Long menu_id,
+    public ResponseEntity<Page<Recipe>> getRecipesByKeyword(@PathVariable("menu_id") Long menu_id,
                                                    @RequestParam String keyword,
                                                    @RequestParam(defaultValue = "0") int page,
                                                    @RequestParam(defaultValue = "15") int size){
-        Page<Recipe> recipes = recipeService.getRecipesByMenu_idAndKeyword(menu_id, keyword, page, size);
+        Page<Recipe> recipes = recipeService.getRecipesByMenuIdAndKeyword(menu_id, keyword, page, size);
         return ResponseEntity.ok(recipes);
     }
 }
