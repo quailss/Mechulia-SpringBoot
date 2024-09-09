@@ -18,7 +18,7 @@ spring:
         registration:
           kakao:
             client-id: ${KAKAO_REST_API_KEY}
-            client-secret: ""  # 카카오는 클라이언트 시크릿이 필요하지 않음
+            client-secret: ${KAKAO_SECRET}
             redirect-uri: "{baseUrl}/login/oauth2/code/kakao"
             authorization-grant-type: authorization_code
             scope: profile_nickname, profile_image, account_email
