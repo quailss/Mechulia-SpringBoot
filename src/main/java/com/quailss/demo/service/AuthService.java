@@ -2,7 +2,6 @@ package com.quailss.demo.service;
 
 import com.quailss.demo.domain.Member;
 import com.quailss.demo.domain.dto.RegisterDto;
-import com.quailss.demo.domain.enums.Provider;
 import com.quailss.demo.repository.AuthRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
