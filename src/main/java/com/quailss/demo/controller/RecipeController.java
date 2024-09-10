@@ -30,12 +30,19 @@ public class RecipeController {
     }
 
     @GetMapping("/category/{menu_id}")
-    public ResponseEntity<Page<Recipe>> getRecipesByCategory(
+    public ResponseEntity<RecipeDto> getRecipesByCategory(
             @PathVariable Long menu_id,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "15") int size) {
-        Page<Recipe> recipes = recipeService.getRecipesByCategory(menu_id, page, size);
-        return ResponseEntity.ok(recipes);
+        Page<Recipe> recipesPage = recipeService.getRecipesByCategory(menu_id, page, size);
+        long totalRecipesCnt = recipesPage.getTotalElements();
+
+        RecipeDto response = new RecipeDto(
+                recipesPage.getContent(),  // 실제 Recipe 리스트
+                totalRecipesCnt  // 전체 Recipe 개수
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/main/theme")
