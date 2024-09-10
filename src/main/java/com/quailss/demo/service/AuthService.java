@@ -1,6 +1,7 @@
 package com.quailss.demo.service;
 
 import com.quailss.demo.domain.Member;
+import com.quailss.demo.domain.dto.LoginDto;
 import com.quailss.demo.domain.dto.RegisterDto;
 import com.quailss.demo.repository.AuthRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,4 +28,26 @@ public class AuthService {
         return authRepository.findByEmail(email);
     }
 
+    public LoginDto verificationMember(String email, String password) {
+        Optional<Member> memberEmail = authRepository.findByEmail(email);
+
+        if (memberEmail.isPresent()) {
+            if (email.equals(memberEmail.get().getEmail())) {
+                memberEmail.map(m -> passwordEncoder.matches(password, m.getPassword())).orElse(null);
+                LoginDto loginDto = LoginDto.toLoginDto(memberEmail.get());
+                return loginDto;
+            }
+        }
+        return null;
+    }
+
+    public String getAuthenticatedMemberId(String name, String phonenumber){
+        Optional<Member> member = authRepository.findByNameAndPhoneNumber(name, phonenumber);
+
+        if(member.isPresent()){
+            return member.get().getEmail();
+        }
+
+        return null;
+    }
 }
