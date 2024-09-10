@@ -1,8 +1,11 @@
 package com.quailss.demo.controller;
 
 import com.quailss.demo.domain.Member;
+import com.quailss.demo.domain.dto.FindIdDto;
+import com.quailss.demo.domain.dto.LoginDto;
 import com.quailss.demo.domain.dto.RegisterDto;
 import com.quailss.demo.service.AuthService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -59,5 +62,30 @@ public class AuthController {
         response.put("available", optionalMember.isEmpty());
 
         return ResponseEntity.ok(response);
+    }
+
+    //로그인
+    @PostMapping("login")//
+    public ResponseEntity<String> login(@RequestBody LoginDto loginDto, HttpSession httpSession){
+
+        try{
+            LoginDto verifiedMember = authService.verificationMember(loginDto.getEmail(),loginDto.getPassword());
+            httpSession.setAttribute("Email",verifiedMember.getEmail());
+            return ResponseEntity.ok("로그인 성공");
+        }catch (NullPointerException e){
+            return ResponseEntity.badRequest().body("로그인 실패");
+
+        }
+    }
+
+    //아이디 찾기
+    @PostMapping("find-id")
+    public ResponseEntity<String> findByid(@RequestBody FindIdDto findIdDto){
+        try{
+            String memberEmail = authService.getAuthenticatedMemberId(findIdDto.getName(),findIdDto.getPhoneNumber());
+            return ResponseEntity.ok("이메일:" + memberEmail);
+        } catch (NullPointerException e){
+            return ResponseEntity.notFound().build();
+        }
     }
 }
