@@ -34,14 +34,14 @@ public class SecurityConfig {
                 )
                 .oauth2Login(oauth2Login ->
                         oauth2Login
-                                .defaultSuccessUrl("/") // 로그인 성공 후 리다이렉트 URL
+                                .defaultSuccessUrl("http://localhost:3000") // 로그인 성공 후 리다이렉트 URL
                                 .userInfoEndpoint(userInfoEndpoint ->
                                         userInfoEndpoint.userService(customOAuth2UserService)
                                 )
                 ).formLogin(formLogin ->
                         formLogin
                                 .loginPage("/login") // 로그인 페이지 URL
-                                .defaultSuccessUrl("/") // 로그인 성공 후 이동할 URL
+                                .defaultSuccessUrl("http://localhost:3000") // 로그인 성공 후 이동할 URL
                                 .permitAll()
                 )
                 .logout(logout ->

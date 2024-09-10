@@ -50,13 +50,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         if ("naver".equals(registrationId)) {
             Map<String, Object> response = (Map<String, Object>) attributes.get("response");
             email = (String) response.get("email");
-            name = (String) response.get("name");
+            name = (String) response.get("nickname");
             provider_id = (String) response.get("id");
             provider = Provider.NAVER;
         } else if ("kakao".equals(registrationId)) {
             Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
+            Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
             email = (String) kakaoAccount.get("email");
-            name = (String) attributes.get("nickname");
+            name = (String) profile.get("nickname");
             provider_id = attributes.get("id").toString();
             provider = Provider.KAKAO;
         } else {
