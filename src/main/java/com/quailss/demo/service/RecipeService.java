@@ -26,8 +26,10 @@ public class RecipeService {
 
         if(menuId == 0)
             return recipeRepository.findAllByKeyword(keyword, pageable);
-        else
+        else if(menuId > 0 && menuId < 5)
             return recipeRepository.findAllByMenuIdAndKeyword(menuId, keyword, pageable);
+        else
+            return recipeRepository.findAllByMenuIdAndKeyword(keyword, pageable);
     }
 
     public Optional<Recipe> getRecipe(Long recipeId){
@@ -36,6 +38,10 @@ public class RecipeService {
 
     public Page<Recipe> getRecipesByCategory(Long menuId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
-        return recipeRepository.findAllByMenuId(menuId, pageable);
+
+        if(menuId < 5)
+            return recipeRepository.findAllByMenuId(menuId, pageable);
+        else
+            return recipeRepository.findAllByMenuId(pageable);
     }
 }
