@@ -45,13 +45,13 @@ public class Member {
     private List<Review> reviewList = new ArrayList<>();
 
     @CreatedDate
-    private LocalDateTime created_at;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
     @LastModifiedDate
-    private LocalDateTime updated_at;
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     //private LocalDateTime deleted_at;
-
-
 
     /*public void updateProfile(String nickname, String profileImage) {
         this.name = nickname;
@@ -64,7 +64,7 @@ public class Member {
         this.name = name;
         this.provider = provider;
         this.provider_id = providerId;
-        this.created_at = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
     }
 
     public Member(String email, String password, String name) {
@@ -72,6 +72,6 @@ public class Member {
         this.password = password;
         this.name = name;
         this.provider = Provider.LOCAL;
-        this.created_at = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
     }
 }
