@@ -67,10 +67,12 @@ public class Member {
         this.created_at = LocalDateTime.now();
     }
 
-    public Member(String email, String password, String name) {
+    public Member(String email, String password, String name, String phone, LocalDate birthday) {
         this.email = email;
         this.password = password;
         this.name = name;
+        this.phonenumber = phone;
+        this.birthday = birthday;
         this.provider = Provider.LOCAL;
         this.created_at = LocalDateTime.now();
     }

@@ -14,8 +14,8 @@ public class LoginDto {
 
     private String password;
 
-    public static com.quailss.demo.domain.dto.LoginDto toLoginDto(Member member) {
-        com.quailss.demo.domain.dto.LoginDto loginDto = new com.quailss.demo.domain.dto.LoginDto();
+    public static LoginDto toLoginDto(Member member) {
+        LoginDto loginDto = new LoginDto();
         loginDto.setEmail(member.getEmail());
         loginDto.setPassword(member.getPassword());
 
