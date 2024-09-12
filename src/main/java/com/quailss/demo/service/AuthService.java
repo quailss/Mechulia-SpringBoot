@@ -19,7 +19,7 @@ public class AuthService {
     public void register(RegisterDto registerDto){
         String encryptedPassword = passwordEncoder.encode(registerDto.getPassword());
 
-        Member newMember = new Member(registerDto.getEmail(), encryptedPassword, registerDto.getName());
+        Member newMember = new Member(registerDto.getEmail(), encryptedPassword, registerDto.getName(), registerDto.getPhone(), registerDto.getBirth());
 
         Member registeredMember = authRepository.save(newMember);
     }
@@ -42,7 +42,7 @@ public class AuthService {
     }
 
     public String getAuthenticatedMemberId(String name, String phonenumber){
-        Optional<Member> member = authRepository.findByNameAndPhoneNumber(name, phonenumber);
+        Optional<Member> member = authRepository.findByNameAndPhonenumber(name, phonenumber);
 
         if(member.isPresent()){
             return member.get().getEmail();
