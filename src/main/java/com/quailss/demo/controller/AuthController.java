@@ -32,24 +32,17 @@ public class AuthController {
 
     //회원 등록
     @PostMapping("/register")
-    public ResponseEntity<Map<String, Object>> registerMember(@ModelAttribute("member") @Valid RegisterDto registerDto, BindingResult bindingResult) {
-        Map<String, Object> response = new HashMap<>();
-
+    public ResponseEntity<Boolean> registerMember(@RequestBody @Valid RegisterDto registerDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            response.put("register success", false);
-            response.put("message", "Validation errors occurred.");
-            return ResponseEntity.badRequest().body(response);
+           System.out.println("errors " + bindingResult.getAllErrors());
+            return ResponseEntity.badRequest().body(false);
         }
 
         try {
             authService.register(registerDto);
-            response.put("success", true);
-            response.put("message", "Registration successful.");
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(true);
         } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "Registration failed.");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
         }
     }
 
