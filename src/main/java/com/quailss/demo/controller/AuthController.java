@@ -55,13 +55,12 @@ public class AuthController {
 
     //아이디 중복 검사
     @PostMapping("/check-email")
-    public ResponseEntity<Map<String, Boolean>> findByEmail(@RequestParam("email") String email){
-        Optional<Member> optionalMember = authService.findByEmail(email);
-
-        Map<String, Boolean> response = new HashMap<>();
-        response.put("available", optionalMember.isEmpty());
-
-        return ResponseEntity.ok(response);
+    public ResponseEntity<Boolean> findByEmail(@RequestBody Map<String, String> request){
+        String email = request.get("email");
+        Optional<Member> memeberOptional = authService.findByEmail(email);
+        if(memeberOptional.isEmpty())
+            return ResponseEntity.ok(true);
+        return ResponseEntity.ok(false);
     }
 
     //로그인
