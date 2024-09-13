@@ -77,7 +77,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             authRepository.save(member);
         }
 
-        httpSession.setAttribute("email", member.getEmail());
+        httpSession.setAttribute("Email", member.getEmail());
         // 필요한 경우 사용자 정보를 업데이트
         // 예: member.updateProfile(name);
 
