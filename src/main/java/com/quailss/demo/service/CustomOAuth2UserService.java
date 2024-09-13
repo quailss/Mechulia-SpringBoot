@@ -3,6 +3,7 @@ package com.quailss.demo.service;
 import com.quailss.demo.domain.Member;
 import com.quailss.demo.domain.enums.Provider;
 import com.quailss.demo.repository.AuthRepository;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -21,6 +22,7 @@ import java.util.Optional;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final AuthRepository authRepository;
+    private final HttpSession httpSession;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -74,6 +76,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             member = new Member(email, name, provider, provider_id);
             authRepository.save(member);
         }
+
+        httpSession.setAttribute("email", member.getEmail());
         // 필요한 경우 사용자 정보를 업데이트
         // 예: member.updateProfile(name);
 
