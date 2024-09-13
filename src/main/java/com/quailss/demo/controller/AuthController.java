@@ -30,6 +30,34 @@ public class AuthController {
         return ResponseEntity.ok("register success");
     }
 
+    @GetMapping("/session-info")
+    public ResponseEntity<Map<String, Object>> getSessionInfo(HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+
+        String loggedInEmail  = (String)session.getAttribute("Email");
+
+        if(loggedInEmail == null){
+            response.put("loggedIn", false);
+            response.put("nickname", "");
+            response.put("email", "");
+
+            return ResponseEntity.ok(response);
+        }
+        Optional<Member> memberOptional = authService.findByEmail(loggedInEmail);
+
+        if(memberOptional.isEmpty()){
+            response.put("loggedIn", false);
+            response.put("nickname", "");
+            response.put("email", "");
+        }else {
+            response.put("loggedIn", true);
+            response.put("nickname", memberOptional.get().getName());
+            response.put("email", memberOptional.get().getEmail());
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
     //회원 등록
     @PostMapping("/register")
     public ResponseEntity<Boolean> registerMember(@RequestBody @Valid RegisterDto registerDto, BindingResult bindingResult) {
