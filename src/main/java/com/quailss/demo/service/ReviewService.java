@@ -31,7 +31,13 @@ public class ReviewService {
     }
 
     public void insertReview(Recipe recipe, Member member, BigDecimal score, String content) {
-
+        Review newReview = Review.builder()
+                .member(member)
+                .recipe(recipe)
+                .score(score)
+                .content(content)
+                .build();
+        reviewRepository.save(newReview);
     }
 
     public Review updateReview(ReviewDto reviewDto) {
