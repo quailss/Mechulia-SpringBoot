@@ -16,5 +16,7 @@ public interface AuthRepository extends JpaRepository<Member, Long> {
     @Query("SELECT m FROM Member m WHERE m.provider = :provider AND m.provider_id = :providerId")
     Optional<Member> findByProviderAndProviderId(@Param("provider") Provider provider, @Param("providerId") String providerId);
 
-    Optional<Member> findByNameAndPhoneNumber(String Name, String phoneNumber);
+    Optional<Member> findByNameAndPhonenumber(String Name, String phoneNumber);
+
+    Optional<Member> findByPhonenumber(String phoneNumber);
 }

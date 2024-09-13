@@ -4,6 +4,7 @@ import com.quailss.demo.domain.Member;
 import com.quailss.demo.domain.dto.FindIdDto;
 import com.quailss.demo.domain.dto.LoginDto;
 import com.quailss.demo.domain.dto.RegisterDto;
+import com.quailss.demo.domain.dto.SetPasswordDto;
 import com.quailss.demo.service.AuthService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -26,7 +27,7 @@ public class AuthController {
 
     @GetMapping("/register")
     public ResponseEntity<String> showRegisterForm(Model model){
-        model.addAttribute("member", new RegisterDto());
+        //model.addAttribute("member", new RegisterDto());
         return ResponseEntity.ok("register success");
     }
 
@@ -108,4 +109,18 @@ public class AuthController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    //비밀번호 재설정
+    @PostMapping
+    public ResponseEntity<String> setPassword(@RequestBody SetPasswordDto setPasswordDto){
+        try{
+            Long memberPassword = authService.verifyAndResetPassword(setPasswordDto.getEmail(), setPasswordDto.getPhoneNumber(), setPasswordDto.getPassword());
+            return ResponseEntity.ok("비밀번호 재설정 완료");
+        } catch (NullPointerException e){
+            return ResponseEntity.badRequest().body("잘못된 요청입니다.");
+        }
+
+    }
+
+
 }

@@ -19,7 +19,7 @@ public class AuthService {
     public void register(RegisterDto registerDto){
         String encryptedPassword = passwordEncoder.encode(registerDto.getPassword());
 
-        Member newMember = new Member(registerDto.getEmail(), encryptedPassword, registerDto.getName(), registerDto.getPhone(), registerDto.getBirth());
+        Member newMember = new Member(registerDto.getEmail(), encryptedPassword, registerDto.getName(), registerDto.getPhone(),registerDto.getBirth());
 
         Member registeredMember = authRepository.save(newMember);
     }
@@ -32,8 +32,7 @@ public class AuthService {
         Optional<Member> memberEmail = authRepository.findByEmail(email);
 
         if (memberEmail.isPresent()) {
-            if (email.equals(memberEmail.get().getEmail())) {
-                memberEmail.map(m -> passwordEncoder.matches(password, m.getPassword())).orElse(null);
+            if (email.equals(memberEmail.get().getEmail()) && passwordEncoder.matches(password,memberEmail.get().getPassword())) {
                 LoginDto loginDto = LoginDto.toLoginDto(memberEmail.get());
                 return loginDto;
             }
@@ -42,12 +41,25 @@ public class AuthService {
     }
 
     public String getAuthenticatedMemberId(String name, String phonenumber){
-        Optional<Member> member = authRepository.findByNameAndPhonenumber(name, phonenumber);
+        Optional<Member> member = authRepository.findByPhonenumber(phonenumber);
 
         if(member.isPresent()){
             return member.get().getEmail();
         }
 
+        return null;
+    }
+
+    public Long verifyAndResetPassword(String email, String phoneNumber, String password){
+        Optional<Member> memberPhoneNumber = authRepository.findByPhonenumber(phoneNumber);
+
+        if(memberPhoneNumber.isPresent()){
+            Member member = memberPhoneNumber.get();
+            String encryptedPassword = passwordEncoder.encode(password);
+            member.setPassword(encryptedPassword);
+            authRepository.save(member);
+            return member.getId();
+        }
         return null;
     }
 }
