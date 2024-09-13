@@ -31,38 +31,58 @@ public class AuthController {
         return ResponseEntity.ok("register success");
     }
 
-    //회원 등록
-    @PostMapping("/register")
-    public ResponseEntity<Map<String, Object>> registerMember(@ModelAttribute("member") @Valid RegisterDto registerDto, BindingResult bindingResult) {
+    @GetMapping("/session-info")
+    public ResponseEntity<Map<String, Object>> getSessionInfo(HttpSession session) {
         Map<String, Object> response = new HashMap<>();
 
+        String loggedInEmail  = (String)session.getAttribute("Email");
+
+        if(loggedInEmail == null){
+            response.put("loggedIn", false);
+            response.put("nickname", "");
+            response.put("email", "");
+
+            return ResponseEntity.ok(response);
+        }
+        Optional<Member> memberOptional = authService.findByEmail(loggedInEmail);
+
+        if(memberOptional.isEmpty()){
+            response.put("loggedIn", false);
+            response.put("nickname", "");
+            response.put("email", "");
+        }else {
+            response.put("loggedIn", true);
+            response.put("nickname", memberOptional.get().getName());
+            response.put("email", memberOptional.get().getEmail());
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
+    //회원 등록
+    @PostMapping("/register")
+    public ResponseEntity<Boolean> registerMember(@RequestBody @Valid RegisterDto registerDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            response.put("register success", false);
-            response.put("message", "Validation errors occurred.");
-            return ResponseEntity.badRequest().body(response);
+           System.out.println("errors " + bindingResult.getAllErrors());
+            return ResponseEntity.badRequest().body(false);
         }
 
         try {
             authService.register(registerDto);
-            response.put("success", true);
-            response.put("message", "Registration successful.");
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(true);
         } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "Registration failed.");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
         }
     }
 
     //아이디 중복 검사
     @PostMapping("/check-email")
-    public ResponseEntity<Map<String, Boolean>> findByEmail(@RequestParam("email") String email){
-        Optional<Member> optionalMember = authService.findByEmail(email);
-
-        Map<String, Boolean> response = new HashMap<>();
-        response.put("available", optionalMember.isEmpty());
-
-        return ResponseEntity.ok(response);
+    public ResponseEntity<Boolean> findByEmail(@RequestBody Map<String, String> request){
+        String email = request.get("email");
+        Optional<Member> memeberOptional = authService.findByEmail(email);
+        if(memeberOptional.isEmpty())
+            return ResponseEntity.ok(true);
+        return ResponseEntity.ok(false);
     }
 
     //로그인
