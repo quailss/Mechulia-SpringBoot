@@ -36,25 +36,26 @@ public class AuthController {
         Map<String, Object> response = new HashMap<>();
 
         String loggedInEmail  = (String)session.getAttribute("Email");
+        //System.out.println("loggedIn "+loggedInEmail);
 
-        if(loggedInEmail == null){
+        if(loggedInEmail == null) {
             response.put("loggedIn", false);
             response.put("nickname", "");
             response.put("email", "");
+        }else{
+            Optional<Member> memberOptional = authService.findByEmail(loggedInEmail);
 
-            return ResponseEntity.ok(response);
+            if(memberOptional.isEmpty()){
+                response.put("loggedIn", false);
+                response.put("nickname", "");
+                response.put("email", "");
+            }else {
+                response.put("loggedIn", true);
+                response.put("nickname", memberOptional.get().getName());
+                response.put("email", memberOptional.get().getEmail());
+            }
         }
-        Optional<Member> memberOptional = authService.findByEmail(loggedInEmail);
 
-        if(memberOptional.isEmpty()){
-            response.put("loggedIn", false);
-            response.put("nickname", "");
-            response.put("email", "");
-        }else {
-            response.put("loggedIn", true);
-            response.put("nickname", memberOptional.get().getName());
-            response.put("email", memberOptional.get().getEmail());
-        }
 
         return ResponseEntity.ok(response);
     }
