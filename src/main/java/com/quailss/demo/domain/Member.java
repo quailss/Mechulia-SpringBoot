@@ -1,5 +1,6 @@
 package com.quailss.demo.domain;
 
+import com.quailss.demo.domain.enums.MemberStatus;
 import com.quailss.demo.domain.enums.Provider;
 import jakarta.persistence.*;
 import lombok.*;
@@ -50,8 +51,11 @@ public class Member {
     @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
-    //private LocalDateTime deleted_at;
+    @Enumerated(EnumType.STRING)
+    private MemberStatus status;
 
     /*public void updateProfile(String nickname, String profileImage) {
         this.name = nickname;
