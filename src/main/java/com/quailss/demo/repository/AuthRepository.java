@@ -11,12 +11,13 @@ import java.util.Optional;
 
 @Repository
 public interface AuthRepository extends JpaRepository<Member, Long> {
-    Optional<Member> findByEmail(String Email);
-
     @Query("SELECT m FROM Member m WHERE m.provider = :provider AND m.provider_id = :providerId")
     Optional<Member> findByProviderAndProviderId(@Param("provider") Provider provider, @Param("providerId") String providerId);
 
     Optional<Member> findByNameAndPhonenumber(String Name, String phoneNumber);
 
     Optional<Member> findByPhonenumber(String phoneNumber);
+
+    @Query("SELECT m FROM Member m WHERE m.provider = :provider AND m.email = :loggedInEmail")
+    Optional<Member> findByEmailAndProvider(String loggedInEmail, Provider provider);
 }
