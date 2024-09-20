@@ -38,12 +38,13 @@ public class Member {
     private Provider provider;
     private String provider_id;
     //private String profile_image;
-
+    /*
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<Bookmark> bookmarkList = new ArrayList<>();
 
     @OneToMany(mappedBy = "member")
     private List<Review> reviewList = new ArrayList<>();
+    */
 
     @CreatedDate
     @Column(name = "created_at")
