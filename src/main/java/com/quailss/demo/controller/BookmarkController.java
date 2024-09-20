@@ -6,7 +6,6 @@ import com.quailss.demo.domain.Recipe;
 import com.quailss.demo.domain.enums.Provider;
 import com.quailss.demo.service.AuthService;
 import com.quailss.demo.service.BookmarkService;
-import com.quailss.demo.service.MemberService;
 import com.quailss.demo.service.RecipeService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
