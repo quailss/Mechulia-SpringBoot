@@ -31,10 +31,11 @@ public class Recipe {
     private String keyword2;
     private String keyword3;
     private String keyword4;
-
+    /*
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL)
     private List<Bookmark> bookmarkList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL)
     private List<Review> reviewList = new ArrayList<>();
+    */
 }

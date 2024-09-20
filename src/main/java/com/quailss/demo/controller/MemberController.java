@@ -1,6 +1,7 @@
 package com.quailss.demo.controller;
 
 
+import com.quailss.demo.domain.enums.Provider;
 import com.quailss.demo.service.MemberService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,8 @@ public class MemberController {
     public ResponseEntity<String> setPhoneNumber(@RequestParam("phoneNumber") String phonenumber, HttpSession httpSession){
         try{
             String memberEmail = (String) httpSession.getAttribute("Email");
-            memberService.changePhoneNumber(memberEmail,phonenumber);
+            Provider provider = (Provider) httpSession.getAttribute("Provider");
+            memberService.changePhoneNumber(memberEmail,phonenumber, provider);
             return ResponseEntity.ok("휴대폰 번호 설정 변경 성공하였습니다.");
         } catch (NullPointerException e){
             return ResponseEntity.badRequest().body("잘못된 요청입니다.");
@@ -36,7 +38,8 @@ public class MemberController {
     public ResponseEntity<String> setname(@RequestParam("name") String name, HttpSession httpSession){
         try{
             String memberEmail = (String) httpSession.getAttribute("Email");
-            memberService.changeName(memberEmail,name);
+            Provider provider = (Provider) httpSession.getAttribute("Provider");
+            memberService.changeName(memberEmail,name, provider);
             return ResponseEntity.ok("이름 설정 변경 성공하였습니다.");
         } catch (NullPointerException e){
             return ResponseEntity.badRequest().body("잘못된 요청입니다.");
@@ -48,7 +51,8 @@ public class MemberController {
     public ResponseEntity<String> setbirthday(@RequestParam("birthday") LocalDate birthday, HttpSession httpSession){
         try{
             String memberEmail = (String) httpSession.getAttribute("Email");
-            memberService.changeBirthday(memberEmail,birthday);
+            Provider provider = (Provider) httpSession.getAttribute("Provider");
+            memberService.changeBirthday(memberEmail,birthday, provider);
             return ResponseEntity.ok("생일 설정 변경 성공하였습니다.");
         } catch (NullPointerException e){
             return ResponseEntity.badRequest().body("잘못된 요청입니다.");

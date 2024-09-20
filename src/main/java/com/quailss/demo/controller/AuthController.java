@@ -5,6 +5,7 @@ import com.quailss.demo.domain.dto.FindIdDto;
 import com.quailss.demo.domain.dto.LoginDto;
 import com.quailss.demo.domain.dto.RegisterDto;
 import com.quailss.demo.domain.dto.SetPasswordDto;
+import com.quailss.demo.domain.enums.Provider;
 import com.quailss.demo.service.AuthService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -32,10 +33,11 @@ public class AuthController {
     }
 
     @GetMapping("/session-info")
-    public ResponseEntity<Map<String, Object>> getSessionInfo(HttpSession session) {
+    public ResponseEntity<Map<String, Object>> getMemberInfo(HttpSession session) {
         Map<String, Object> response = new HashMap<>();
 
         String loggedInEmail  = (String)session.getAttribute("Email");
+        Provider provider = (Provider) session.getAttribute("Provider");
         //System.out.println("loggedIn "+loggedInEmail);
 
         if(loggedInEmail == null) {
@@ -43,7 +45,7 @@ public class AuthController {
             response.put("nickname", "");
             response.put("email", "");
         }else{
-            Optional<Member> memberOptional = authService.findByEmail(loggedInEmail);
+            Optional<Member> memberOptional = authService.findByEmailAndProvider(loggedInEmail, provider);
 
             if(memberOptional.isEmpty()){
                 response.put("loggedIn", false);
@@ -80,7 +82,7 @@ public class AuthController {
     @PostMapping("/check-email")
     public ResponseEntity<Boolean> findByEmail(@RequestBody Map<String, String> request){
         String email = request.get("email");
-        Optional<Member> memeberOptional = authService.findByEmail(email);
+        Optional<Member> memeberOptional = authService.findByEmailAndProvider(email, Provider.LOCAL);
         if(memeberOptional.isEmpty())
             return ResponseEntity.ok(true);
         return ResponseEntity.ok(false);
@@ -93,6 +95,8 @@ public class AuthController {
         try{
             LoginDto verifiedMember = authService.verificationMember(loginDto.getEmail(),loginDto.getPassword());
             httpSession.setAttribute("Email",verifiedMember.getEmail());
+            httpSession.setAttribute("Provider", Provider.LOCAL);
+
             return ResponseEntity.ok("로그인 성공");
         }catch (NullPointerException e){
             return ResponseEntity.badRequest().body("로그인 실패");

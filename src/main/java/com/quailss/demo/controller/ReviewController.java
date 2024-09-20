@@ -5,6 +5,9 @@ import com.quailss.demo.domain.Recipe;
 import com.quailss.demo.domain.Review;
 import com.quailss.demo.domain.dto.ReviewCommand;
 import com.quailss.demo.domain.dto.ReviewDto;
+import com.quailss.demo.domain.enums.MemberStatus;
+import com.quailss.demo.domain.enums.Provider;
+import com.quailss.demo.service.AuthService;
 import com.quailss.demo.service.MemberService;
 import com.quailss.demo.service.RecipeService;
 import com.quailss.demo.service.ReviewService;
@@ -17,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,12 +28,18 @@ import java.util.Optional;
 @RequestMapping("/api/review")
 public class ReviewController {
     private final ReviewService reviewService;
-    private final MemberService memberService;
     private final RecipeService recipeService;
+    private final AuthService authService;
 
     @GetMapping("/recipe/{recipe_id}") //특정 레시피에 대한 리뷰들
     public ResponseEntity<List<Review>> getReviews(@PathVariable Long recipe_id){
         List<Review> reviewList = reviewService.findByRecipeId(recipe_id);
+        
+        for(Review review : reviewList){
+            if(review.getMember().getStatus() == MemberStatus.DEACTIVATED)
+                review.getMember().setName("알수없음");
+        }
+        
         return ResponseEntity.ok(reviewList);
     }
 
@@ -41,14 +49,15 @@ public class ReviewController {
         return ResponseEntity.ok(reviewList);
     }
 
-    @PostMapping("/write") //특정 레시피에 대해 리뷰 작성
+    @PostMapping() //특정 레시피에 대해 리뷰 작성
     public ResponseEntity<String> writeReview(HttpSession session,
                                               @RequestBody ReviewCommand reviewCommand){
         //유저 정보 가져오기 - 세션
-        String loggedinEmail = (String) session.getAttribute("Email");
+        String loggedInEmail = (String) session.getAttribute("Email");
+        Provider loggedInProvider = (Provider) session.getAttribute("Provider");
 
         Optional<Recipe> recipeOptional = recipeService.getRecipe(reviewCommand.getRecipe_id());
-        Optional<Member> memberOptional = memberService.findByEmail(loggedinEmail);
+        Optional<Member> memberOptional = authService.findByEmailAndProvider(loggedInEmail, loggedInProvider);
 
         if(memberOptional.isEmpty())
             throw new UsernameNotFoundException("사용자를 찾을 수 없습니다.");
@@ -64,14 +73,15 @@ public class ReviewController {
     public ResponseEntity<Review> updateReview(HttpSession session,
                                                @RequestBody ReviewDto reviewDto){
         //유저 정보 가져오기 - 세션
-        String loggedinEmail = (String) session.getAttribute("Email");
+        String loggedInEmail = (String) session.getAttribute("Email");
+        Provider loggedInProvider = (Provider) session.getAttribute("Provider");
 
         Optional<Review> reviewOptinal = reviewService.findById(reviewDto.getReview_id());
         if(reviewOptinal.isEmpty())
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 리뷰입니다.");
 
         Optional<Recipe> recipeOptional = recipeService.getRecipe(reviewOptinal.get().getRecipe().getId());
-        Optional<Member> memberOptional = memberService.findByEmail(loggedinEmail);
+        Optional<Member> memberOptional = authService.findByEmailAndProvider(loggedInEmail, loggedInProvider);
 
         if(memberOptional.isEmpty())
             throw new UsernameNotFoundException("사용자를 찾을 수 없습니다.");

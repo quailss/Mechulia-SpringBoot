@@ -22,6 +22,7 @@ public class Review {
 
     private BigDecimal score;
 
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @CreatedDate

@@ -78,6 +78,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
 
         httpSession.setAttribute("Email", member.getEmail());
+        httpSession.setAttribute("Provider", member.getProvider());
         // 필요한 경우 사용자 정보를 업데이트
         // 예: member.updateProfile(name);
 
