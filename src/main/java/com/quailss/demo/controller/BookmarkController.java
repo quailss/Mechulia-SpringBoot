@@ -3,6 +3,8 @@ package com.quailss.demo.controller;
 import com.quailss.demo.domain.Member;
 import com.quailss.demo.domain.Bookmark;
 import com.quailss.demo.domain.Recipe;
+import com.quailss.demo.domain.enums.Provider;
+import com.quailss.demo.service.AuthService;
 import com.quailss.demo.service.BookmarkService;
 import com.quailss.demo.service.MemberService;
 import com.quailss.demo.service.RecipeService;
@@ -22,14 +24,15 @@ import java.util.Optional;
 @RequestMapping("/api/bookmark")
 public class BookmarkController {
     private final BookmarkService bookmarkService;
-    private final MemberService memberService;
     private final RecipeService recipeService;
+    private final AuthService authService;
 
     @GetMapping("/member") //멤버가 저장한 레시피들
     public ResponseEntity<List<Bookmark>> getBookmarks(HttpSession session){
         String loggedInEmail = (String) session.getAttribute("Email");
+        Provider loggedInProvider = (Provider) session.getAttribute("Provider");
 
-        Optional<Member> memberOptional = memberService.findByEmail(loggedInEmail);
+        Optional<Member> memberOptional = authService.findByEmailAndProvider(loggedInEmail, loggedInProvider);
 
         if(memberOptional.isEmpty())
             throw new RuntimeException("로그인하지 않은 사용자입니다.");
@@ -38,14 +41,36 @@ public class BookmarkController {
         return ResponseEntity.ok(bookmarkList);
     }
 
+    @GetMapping("/checked")
+    public ResponseEntity<Boolean> getBookmark(HttpSession session,
+                                               @RequestParam Long recipeId){
+        String loggedInEmail = (String) session.getAttribute("Email");
+        Provider loggedInProvider = (Provider) session.getAttribute("Provider");
+
+        Optional<Member> memberOptional = authService.findByEmailAndProvider(loggedInEmail, loggedInProvider);
+        if(memberOptional.isEmpty())
+            throw new RuntimeException("로그인하지 않은 사용자입니다.");
+
+        Optional<Recipe> recipeOptional = recipeService.getRecipe(recipeId);
+        if(recipeOptional.isEmpty())
+            throw new RuntimeException("존재하지 않는 레시피입니다.");
+
+        Optional<Bookmark> bookmarkOptional = bookmarkService.findByMemberIdAndRecipeId(memberOptional.get().getId(), recipeOptional.get().getId());
+        if(bookmarkOptional.isEmpty())
+            return ResponseEntity.ok(false);
+        else
+            return ResponseEntity.ok(true);
+    }
+
     @PostMapping("/addBookmark")
     public ResponseEntity<String> addBookmark(HttpSession session,
                                               @RequestParam Long recipeId){
         //유저 정보 가져오기 - 세션
-        String loggedinEmail = (String) session.getAttribute("Email");
+        String loggedInEmail = (String) session.getAttribute("Email");
+        Provider loggedInProvider = (Provider) session.getAttribute("Provider");
 
         Optional<Recipe> recipeOptional = recipeService.getRecipe(recipeId);
-        Optional<Member> memberOptional = memberService.findByEmail(loggedinEmail);
+        Optional<Member> memberOptional = authService.findByEmailAndProvider(loggedInEmail, loggedInProvider);
 
         if(memberOptional.isEmpty())
             throw new RuntimeException("로그인하지 않은 사용자입니다.");

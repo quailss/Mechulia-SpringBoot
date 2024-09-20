@@ -14,6 +14,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BookmarkService {
     private final BookmarkRepository bookmarkRepository;
+
     public List<Bookmark> findByMemberId(Long memberId) {
         return bookmarkRepository.findByMemberId(memberId);
     }
@@ -31,5 +32,9 @@ public class BookmarkService {
 
     public Optional<Bookmark> findById(Long bookmarkId) {
         return bookmarkRepository.findById(bookmarkId);
+    }
+
+    public Optional<Bookmark> findByMemberIdAndRecipeId(Long memberId, Long recipeId) {
+        return bookmarkRepository.findByMemberIdAndRecipeId(memberId, recipeId);
     }
 }
