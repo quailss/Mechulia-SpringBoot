@@ -62,7 +62,7 @@ public class BookmarkController {
             return ResponseEntity.ok(true);
     }
 
-    @PostMapping("/addBookmark")
+    @PostMapping()
     public ResponseEntity<String> addBookmark(HttpSession session,
                                               @RequestParam Long recipeId){
         //유저 정보 가져오기 - 세션
@@ -82,7 +82,7 @@ public class BookmarkController {
         return ResponseEntity.ok("Bookmark successfully saved");
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping()
     public ResponseEntity<String> deleteReview(HttpSession session, @RequestParam Long bookmarkId){
         String loggedinEmail = (String) session.getAttribute("Email");
 

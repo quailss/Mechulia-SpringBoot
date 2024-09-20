@@ -49,7 +49,7 @@ public class ReviewController {
         return ResponseEntity.ok(reviewList);
     }
 
-    @PostMapping("/write") //특정 레시피에 대해 리뷰 작성
+    @PostMapping() //특정 레시피에 대해 리뷰 작성
     public ResponseEntity<String> writeReview(HttpSession session,
                                               @RequestBody ReviewCommand reviewCommand){
         //유저 정보 가져오기 - 세션
