@@ -40,8 +40,8 @@ public class ReviewService {
         reviewRepository.save(newReview);
     }
 
-    public Review updateReview(ReviewDto reviewDto) {
-        return reviewRepository.updateReview(reviewDto.getReview_id(), reviewDto.getScore(), reviewDto.getContent());
+    public Review updateReview(Long reviewId, ReviewDto reviewDto) {
+        return reviewRepository.updateReview(reviewId, reviewDto.getScore(), reviewDto.getContent());
     }
 
     public void deleteReview(Review review) {

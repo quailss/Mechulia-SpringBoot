@@ -28,37 +28,12 @@ public class AuthController {
 
     @GetMapping("/register")
     public ResponseEntity<String> showRegisterForm(Model model){
-        //model.addAttribute("member", new RegisterDto());
         return ResponseEntity.ok("register success");
     }
 
-    @GetMapping("/session-info")
+    @GetMapping
     public ResponseEntity<Map<String, Object>> getMemberInfo(HttpSession session) {
-        Map<String, Object> response = new HashMap<>();
-
-        String loggedInEmail  = (String)session.getAttribute("Email");
-        Provider provider = (Provider) session.getAttribute("Provider");
-        //System.out.println("loggedIn "+loggedInEmail);
-
-        if(loggedInEmail == null) {
-            response.put("loggedIn", false);
-            response.put("nickname", "");
-            response.put("email", "");
-        }else{
-            Optional<Member> memberOptional = authService.findByEmailAndProvider(loggedInEmail, provider);
-
-            if(memberOptional.isEmpty()){
-                response.put("loggedIn", false);
-                response.put("nickname", "");
-                response.put("email", "");
-            }else {
-                response.put("loggedIn", true);
-                response.put("nickname", memberOptional.get().getName());
-                response.put("email", memberOptional.get().getEmail());
-            }
-        }
-
-
+        Map<String, Object> response = authService.getMemberInfoFromSession(session);
         return ResponseEntity.ok(response);
     }
 
@@ -82,10 +57,9 @@ public class AuthController {
     @PostMapping("/check-email")
     public ResponseEntity<Boolean> findByEmail(@RequestBody Map<String, String> request){
         String email = request.get("email");
-        Optional<Member> memeberOptional = authService.findByEmailAndProvider(email, Provider.LOCAL);
-        if(memeberOptional.isEmpty())
-            return ResponseEntity.ok(true);
-        return ResponseEntity.ok(false);
+        boolean isAvailable = authService.isEmailAvailable(email);
+
+        return ResponseEntity.ok(isAvailable);
     }
 
     //로그인
@@ -100,7 +74,6 @@ public class AuthController {
             return ResponseEntity.ok("로그인 성공");
         }catch (NullPointerException e){
             return ResponseEntity.badRequest().body("로그인 실패");
-
         }
     }
 
@@ -124,8 +97,5 @@ public class AuthController {
         } catch (NullPointerException e){
             return ResponseEntity.badRequest().body("잘못된 요청입니다.");
         }
-
     }
-
-
 }

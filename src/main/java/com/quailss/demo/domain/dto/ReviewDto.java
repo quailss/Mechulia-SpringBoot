@@ -8,7 +8,6 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 public class ReviewDto {
-    Long review_id;
     BigDecimal score;
     String content;
 }
