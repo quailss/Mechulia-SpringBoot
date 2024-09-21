@@ -29,7 +29,7 @@ public class MemberService {
             return member.getPhonenumber();
         }
 
-        return null;
+        throw new NullPointerException();
     }
 
     // 이름 변경
@@ -43,7 +43,7 @@ public class MemberService {
             return member.getId();
         }
 
-        return null;
+        throw new NullPointerException();
     }
 
     //생일 변경
@@ -57,7 +57,7 @@ public class MemberService {
             return member.getId();
         }
 
-        return null;
+        throw new NullPointerException();
     }
 
 }
