@@ -28,67 +28,43 @@ public class BookmarkController {
 
     @GetMapping("/member") //멤버가 저장한 레시피들
     public ResponseEntity<List<Bookmark>> getBookmarks(HttpSession session){
-        String loggedInEmail = (String) session.getAttribute("Email");
-        Provider loggedInProvider = (Provider) session.getAttribute("Provider");
+        Member loggedInMember = authService.getLoggedInMember(session)
+                .orElseThrow(() -> new RuntimeException("로그인하지 않은 사용자입니다."));
 
-        Optional<Member> memberOptional = authService.findByEmailAndProvider(loggedInEmail, loggedInProvider);
-
-        if(memberOptional.isEmpty())
-            throw new RuntimeException("로그인하지 않은 사용자입니다.");
-
-        List<Bookmark> bookmarkList = bookmarkService.findByMemberId(memberOptional.get().getId());
+        List<Bookmark> bookmarkList = bookmarkService.findByMemberId(loggedInMember.getId());
         return ResponseEntity.ok(bookmarkList);
     }
 
-    @GetMapping("/checked")
+    @GetMapping("/checked/{recipeId}")
     public ResponseEntity<Boolean> getBookmark(HttpSession session,
-                                               @RequestParam Long recipeId){
-        String loggedInEmail = (String) session.getAttribute("Email");
-        Provider loggedInProvider = (Provider) session.getAttribute("Provider");
+                                               @PathVariable Long recipeId){
+        Member loggedInMember = authService.getLoggedInMember(session)
+                .orElseThrow(() -> new RuntimeException("로그인하지 않은 사용자입니다."));
 
-        Optional<Member> memberOptional = authService.findByEmailAndProvider(loggedInEmail, loggedInProvider);
-        if(memberOptional.isEmpty())
-            throw new RuntimeException("로그인하지 않은 사용자입니다.");
-
-        Optional<Recipe> recipeOptional = recipeService.getRecipe(recipeId);
-        if(recipeOptional.isEmpty())
-            throw new RuntimeException("존재하지 않는 레시피입니다.");
-
-        Optional<Bookmark> bookmarkOptional = bookmarkService.findByMemberIdAndRecipeId(memberOptional.get().getId(), recipeOptional.get().getId());
-        if(bookmarkOptional.isEmpty())
-            return ResponseEntity.ok(false);
-        else
-            return ResponseEntity.ok(true);
+        boolean isBookmarked = bookmarkService.isRecipeBookmarkedByMember(loggedInMember.getId(), recipeId);
+        return ResponseEntity.ok(isBookmarked);
     }
 
-    @PostMapping()
+    @PostMapping("/{recipeId}")
     public ResponseEntity<String> addBookmark(HttpSession session,
-                                              @RequestParam Long recipeId){
-        //유저 정보 가져오기 - 세션
-        String loggedInEmail = (String) session.getAttribute("Email");
-        Provider loggedInProvider = (Provider) session.getAttribute("Provider");
+                                              @PathVariable Long recipeId){
+        Member loggedInMember = authService.getLoggedInMember(session)
+                .orElseThrow(() -> new RuntimeException("로그인하지 않은 사용자입니다."));
 
-        Optional<Recipe> recipeOptional = recipeService.getRecipe(recipeId);
-        Optional<Member> memberOptional = authService.findByEmailAndProvider(loggedInEmail, loggedInProvider);
-
-        if(memberOptional.isEmpty())
-            throw new RuntimeException("로그인하지 않은 사용자입니다.");
-        if(recipeOptional.isEmpty())
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "레시피를 찾을 수 없습니다.");
-
-        bookmarkService.addBookmark(recipeOptional.get(), memberOptional.get());
+        bookmarkService.addBookmark(recipeId, loggedInMember);
 
         return ResponseEntity.ok("Bookmark successfully saved");
     }
 
-    @DeleteMapping()
-    public ResponseEntity<String> deleteReview(HttpSession session, @RequestParam Long bookmarkId){
-        String loggedinEmail = (String) session.getAttribute("Email");
+    @DeleteMapping("/{bookmarkId}")
+    public ResponseEntity<String> deleteBookmark(HttpSession session, @PathVariable Long bookmarkId){
+        Member loggedInMember = authService.getLoggedInMember(session)
+                .orElseThrow(() -> new RuntimeException("로그인하지 않은 사용자입니다."));
 
         Bookmark bookmark = bookmarkService.findById(bookmarkId)
                 .orElseThrow(() -> new RuntimeException("Bookmark not found"));
 
-        if(!bookmark.getMember().getEmail().equals(loggedinEmail))
+        if(!bookmark.getMember().getEmail().equals(loggedInMember.getEmail()))
             throw new AccessDeniedException("북마크 등록자가 아닙니다.");
 
         try {
