@@ -6,10 +6,7 @@ import com.quailss.demo.service.MemberService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 
@@ -58,4 +55,17 @@ public class MemberController {
             return ResponseEntity.badRequest().body("잘못된 요청입니다.");
         }
     }
+
+    @DeleteMapping("/delete-member")
+    public ResponseEntity<String> deleteMember(HttpSession httpSession){
+        try{
+            String memberEmail = (String) httpSession.getAttribute("Email");
+            Provider provider = (Provider) httpSession.getAttribute("Provider");
+            memberService.changeWithdrawalMemberstatus(memberEmail,provider);
+            return ResponseEntity.ok("회원이 탈퇴되었습니다.");
+        }catch (NullPointerException e){
+            return ResponseEntity.badRequest().body("잘못된 요청입니다.");
+        }
+    }
+
 }
