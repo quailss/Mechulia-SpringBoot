@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/recipe")
+@RequestMapping("/api/recipes")
 public class RecipeController {
     private final RecipeService recipeService;
 
-    @GetMapping("/main")
+    @GetMapping
     public ResponseEntity<RecipeDto> getRecipes(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "15") int size) {
@@ -29,12 +29,12 @@ public class RecipeController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/category/{menu_id}")
+    @GetMapping("/category/{menuId}")
     public ResponseEntity<RecipeDto> getRecipesByCategory(
-            @PathVariable Long menu_id,
+            @PathVariable Long menuId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "15") int size) {
-        Page<Recipe> recipesPage = recipeService.getRecipesByCategory(menu_id, page, size);
+        Page<Recipe> recipesPage = recipeService.getRecipesByCategory(menuId, page, size);
         long totalRecipesCnt = recipesPage.getTotalElements();
 
         RecipeDto response = new RecipeDto(
@@ -45,7 +45,7 @@ public class RecipeController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/main/theme")
+    @GetMapping("/theme")
     public ResponseEntity<RecipeDto> getRecipesByTheme(@RequestParam String keyword,
                                                    @RequestParam(defaultValue = "0") int page,
                                                    @RequestParam(defaultValue = "15") int size){
@@ -61,12 +61,12 @@ public class RecipeController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/search/{menu_id}")
-    public ResponseEntity<RecipeDto> getRecipesByKeyword(@PathVariable("menu_id") Long menu_id,
+    @GetMapping("/search")
+    public ResponseEntity<RecipeDto> getRecipesByKeyword(@RequestParam Long menuId,
                                                    @RequestParam String keyword,
                                                    @RequestParam(defaultValue = "0") int page,
                                                    @RequestParam(defaultValue = "15") int size){
-        Page<Recipe> recipesPage = recipeService.getRecipesByMenuIdAndKeyword(menu_id, keyword, page, size);
+        Page<Recipe> recipesPage = recipeService.getRecipesByMenuIdAndKeyword(menuId, keyword, page, size);
         long totalRecipesCnt = recipesPage.getTotalElements();
 
         RecipeDto response = new RecipeDto(

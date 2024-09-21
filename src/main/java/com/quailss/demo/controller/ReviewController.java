@@ -31,9 +31,9 @@ public class ReviewController {
     private final RecipeService recipeService;
     private final AuthService authService;
 
-    @GetMapping("/recipe/{recipe_id}") //특정 레시피에 대한 리뷰들
-    public ResponseEntity<List<Review>> getReviews(@PathVariable Long recipe_id){
-        List<Review> reviewList = reviewService.findByRecipeId(recipe_id);
+    @GetMapping("/recipe/{recipeId}") //특정 레시피에 대한 리뷰들
+    public ResponseEntity<List<Review>> getReviews(@PathVariable Long recipeId){
+        List<Review> reviewList = reviewService.findByRecipeId(recipeId);
         
         for(Review review : reviewList){
             if(review.getMember().getStatus() == MemberStatus.DEACTIVATED)
@@ -43,64 +43,55 @@ public class ReviewController {
         return ResponseEntity.ok(reviewList);
     }
 
-    @GetMapping("/member/{member_id}")  //특정 회원이 작성한 리뷰들
-    public ResponseEntity<List<Review>> getReviewsByMember(@PathVariable Long member_id){
-        List<Review> reviewList = reviewService.findByMemberId(member_id);
+    @GetMapping("/member/{memberId}")  //특정 회원이 작성한 리뷰들
+    public ResponseEntity<List<Review>> getReviewsByMember(@PathVariable Long memberId){
+        List<Review> reviewList = reviewService.findByMemberId(memberId);
         return ResponseEntity.ok(reviewList);
     }
 
-    @PostMapping() //특정 레시피에 대해 리뷰 작성
+    @PostMapping("/recipe/{recipeId}") //특정 레시피에 대해 리뷰 작성
     public ResponseEntity<String> writeReview(HttpSession session,
+                                              @PathVariable Long recipeId,
                                               @RequestBody ReviewCommand reviewCommand){
         //유저 정보 가져오기 - 세션
-        String loggedInEmail = (String) session.getAttribute("Email");
-        Provider loggedInProvider = (Provider) session.getAttribute("Provider");
+        Member loggedInMember = authService.getLoggedInMember(session)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인하지 않은 사용자입니다."));
 
-        Optional<Recipe> recipeOptional = recipeService.getRecipe(reviewCommand.getRecipe_id());
-        Optional<Member> memberOptional = authService.findByEmailAndProvider(loggedInEmail, loggedInProvider);
+        Recipe existingRecipe = recipeService.getRecipe(recipeId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "레시피를 찾을 수 없습니다."));
 
-        if(memberOptional.isEmpty())
-            throw new UsernameNotFoundException("사용자를 찾을 수 없습니다.");
-        if(recipeOptional.isEmpty())
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "레시피를 찾을 수 없습니다.");
-
-        reviewService.insertReview(recipeOptional.get(), memberOptional.get(), reviewCommand.getScore(), reviewCommand.getContent());
+        reviewService.insertReview(existingRecipe, loggedInMember, reviewCommand.getScore(), reviewCommand.getContent());
 
         return ResponseEntity.ok("Review successfully saved");
     }
 
-    @PutMapping("/update")
+    @PutMapping("/{reviewId}")
     public ResponseEntity<Review> updateReview(HttpSession session,
+                                               @PathVariable Long reviewId,
                                                @RequestBody ReviewDto reviewDto){
-        //유저 정보 가져오기 - 세션
-        String loggedInEmail = (String) session.getAttribute("Email");
-        Provider loggedInProvider = (Provider) session.getAttribute("Provider");
+        Member loggedInMember = authService.getLoggedInMember(session)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인하지 않은 사용자입니다."));
 
-        Optional<Review> reviewOptinal = reviewService.findById(reviewDto.getReview_id());
-        if(reviewOptinal.isEmpty())
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 리뷰입니다.");
+        Review existingReview = reviewService.findById(reviewId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 리뷰입니다."));
 
-        Optional<Recipe> recipeOptional = recipeService.getRecipe(reviewOptinal.get().getRecipe().getId());
-        Optional<Member> memberOptional = authService.findByEmailAndProvider(loggedInEmail, loggedInProvider);
-
-        if(memberOptional.isEmpty())
-            throw new UsernameNotFoundException("사용자를 찾을 수 없습니다.");
-        if(recipeOptional.isEmpty())
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "레시피를 찾을 수 없습니다.");
-
-        Review updatedReview = reviewService.updateReview(reviewDto);
+        if (!existingReview.getMember().getId().equals(loggedInMember.getId())) {
+            throw new AccessDeniedException("리뷰 작성자가 아닙니다.");
+        }
+        Review updatedReview = reviewService.updateReview(existingReview.getId(), reviewDto);
 
         return ResponseEntity.ok(updatedReview);
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<String> deleteReview(HttpSession session, @RequestParam Long reviewId){
-        String loggedinEmail = (String) session.getAttribute("Email");
+    @DeleteMapping("/{reviewId}")
+    public ResponseEntity<String> deleteReview(HttpSession session, @PathVariable Long reviewId){
+        Member loggedInMember = authService.getLoggedInMember(session)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인하지 않은 사용자입니다."));
 
         Review review = reviewService.findById(reviewId)
-                .orElseThrow(() -> new RuntimeException("Review not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 리뷰입니다."));
 
-        if(!review.getMember().getEmail().equals(loggedinEmail))
+        if(!review.getMember().getEmail().equals(loggedInMember.getEmail()))
             throw new AccessDeniedException("리뷰 작성자가 아닙니다.");
 
         try {
