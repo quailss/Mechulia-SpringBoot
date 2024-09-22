@@ -23,7 +23,7 @@ public class BookmarkController {
     private final BookmarkService bookmarkService;
     private final AuthService authService;
 
-    @GetMapping("/member") //멤버가 저장한 레시피들
+    @GetMapping("/member") //멤버가 저장한 북마크들
     public ResponseEntity<List<Bookmark>> getBookmarks(HttpSession session){
         Member loggedInMember = authService.getLoggedInMember(session)
                 .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("로그인하지 않은 사용자입니다."));
