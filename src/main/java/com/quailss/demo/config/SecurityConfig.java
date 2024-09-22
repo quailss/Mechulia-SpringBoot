@@ -2,6 +2,7 @@ package com.quailss.demo.config;
 
 import com.quailss.demo.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,6 +19,8 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
+    @Value("${FRONEND_URL}") private String frontendUrl;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -34,14 +37,14 @@ public class SecurityConfig {
                 )
                 .oauth2Login(oauth2Login ->
                         oauth2Login
-                                .defaultSuccessUrl("http://localhost:3000") // 로그인 성공 후 리다이렉트 URL
+                                .defaultSuccessUrl(frontendUrl) // 로그인 성공 후 리다이렉트 URL
                                 .userInfoEndpoint(userInfoEndpoint ->
                                         userInfoEndpoint.userService(customOAuth2UserService)
                                 )
                 ).formLogin(formLogin ->
                         formLogin
                                 .loginPage("/login") // 로그인 페이지 URL
-                                .defaultSuccessUrl("http://localhost:3000") // 로그인 성공 후 이동할 URL
+                                .defaultSuccessUrl(frontendUrl) // 로그인 성공 후 이동할 URL
                                 .permitAll()
                 )
                 .logout(logout ->
@@ -58,7 +61,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true); // 쿠키 포함 요청 허용
-        config.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // 리액트 앱 주소
+        config.setAllowedOrigins(Arrays.asList(frontendUrl)); // 리액트 앱 주소
         config.setAllowedHeaders(Arrays.asList("*"));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH"));
 
