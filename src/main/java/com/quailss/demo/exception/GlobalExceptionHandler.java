@@ -1,7 +1,10 @@
 package com.quailss.demo.exception;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -9,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import java.net.URI;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -16,9 +20,18 @@ public class GlobalExceptionHandler {
 
     // 로그인 자격 증명이 없는 경우
     @ExceptionHandler(AuthenticationCredentialsNotFoundException.class)
-    public ModelAndView handleAuthenticationException(HttpServletRequest request) {
-        // 로그인 페이지로 리다이렉트
-        return new ModelAndView("redirect:"+frontendUrl+"/login");
+    public ResponseEntity<Void> handleAuthenticationException(HttpServletRequest request) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(URI.create(frontendUrl + "/login")); // 프론트엔드의 로그인 페이지로 리다이렉트
+
+        return new ResponseEntity<>(headers, HttpStatus.SEE_OTHER); // 303 See Other
+    }
+
+    // 접근 권한이 없는 경우 (403 Forbidden)
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public String handleAccessDeniedException(AccessDeniedException ex) {
+        return "You do not have permission to access this resource: " + ex.getMessage();
     }
 
     // EntityNotFoundException과 그 하위 클래스 처리

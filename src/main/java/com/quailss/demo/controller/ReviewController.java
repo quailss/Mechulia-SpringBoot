@@ -4,6 +4,7 @@ import com.quailss.demo.domain.Member;
 import com.quailss.demo.domain.Recipe;
 import com.quailss.demo.domain.Review;
 import com.quailss.demo.domain.dto.ReviewCommand;
+import com.quailss.demo.domain.dto.ReviewDto;
 import com.quailss.demo.domain.enums.MemberStatus;
 import com.quailss.demo.exception.EntityNotFoundException;
 import com.quailss.demo.service.AuthService;
@@ -29,20 +30,20 @@ public class ReviewController {
     private final AuthService authService;
 
     @GetMapping("/recipe/{recipeId}") //특정 레시피에 대한 리뷰들
-    public ResponseEntity<List<Review>> getReviews(@PathVariable Long recipeId){
-        List<Review> reviewList = reviewService.findByRecipeId(recipeId);
+    public ResponseEntity<List<ReviewDto>> getReviews(@PathVariable Long recipeId){
+        List<ReviewDto> reviewList = reviewService.findByRecipeId(recipeId);
         
-        for(Review review : reviewList){
-            if(review.getMember().getStatus() == MemberStatus.DEACTIVATED)
-                review.getMember().setName("알수없음");
+        for(ReviewDto reviewDto : reviewList){
+            if(reviewDto.getMemberStatus() == MemberStatus.DEACTIVATED)
+                reviewDto.setMemberName("알수없음");
         }
         
         return ResponseEntity.ok(reviewList);
     }
 
     @GetMapping("/member/{memberId}")  //특정 회원이 작성한 리뷰들
-    public ResponseEntity<List<Review>> getReviewsByMember(@PathVariable Long memberId){
-        List<Review> reviewList = reviewService.findByMemberId(memberId);
+    public ResponseEntity<List<ReviewDto>> getReviewsByMember(@PathVariable Long memberId){
+        List<ReviewDto> reviewList = reviewService.findByMemberId(memberId);
         return ResponseEntity.ok(reviewList);
     }
 

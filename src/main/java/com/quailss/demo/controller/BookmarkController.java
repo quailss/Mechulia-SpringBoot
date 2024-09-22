@@ -1,7 +1,7 @@
 package com.quailss.demo.controller;
 
 import com.quailss.demo.domain.Member;
-import com.quailss.demo.domain.Bookmark;
+import com.quailss.demo.domain.dto.BookmarkDto;
 import com.quailss.demo.exception.EntityNotFoundException;
 import com.quailss.demo.service.AuthService;
 import com.quailss.demo.service.BookmarkService;
@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -23,12 +22,12 @@ public class BookmarkController {
     private final BookmarkService bookmarkService;
     private final AuthService authService;
 
-    @GetMapping("/member") //멤버가 저장한 레시피들
-    public ResponseEntity<List<Bookmark>> getBookmarks(HttpSession session){
+    @GetMapping("/member") //멤버가 저장한 북마크들
+    public ResponseEntity<List<BookmarkDto>> getBookmarks(HttpSession session){
         Member loggedInMember = authService.getLoggedInMember(session)
                 .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("로그인하지 않은 사용자입니다."));
 
-        List<Bookmark> bookmarkList = bookmarkService.findByMemberId(loggedInMember.getId());
+        List<BookmarkDto> bookmarkList = bookmarkService.findByMemberId(loggedInMember.getId());
         return ResponseEntity.ok(bookmarkList);
     }
 
