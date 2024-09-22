@@ -11,7 +11,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-public class RegisterDto {
+public class RegisterCommand {
     @NotEmpty(message="이메일은 필수입니다.")
     @Email(message = "유효한 이메일 주소를 입력하세요.")
     private String email;
