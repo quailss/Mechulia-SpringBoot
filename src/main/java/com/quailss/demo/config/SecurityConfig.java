@@ -19,7 +19,7 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
-    @Value("${FRONEND_URL}") private String frontendUrl;
+    @Value("${FRONTEND_URL}") private String frontendUrl;
 
     @Bean
     public PasswordEncoder passwordEncoder() {

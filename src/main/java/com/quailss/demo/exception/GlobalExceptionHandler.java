@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    @Value("${FRONEND_URL}") private String frontendUrl;
+    @Value("${FRONTEND_URL}") private String frontendUrl;
 
     // 로그인 자격 증명이 없는 경우
     @ExceptionHandler(AuthenticationCredentialsNotFoundException.class)
