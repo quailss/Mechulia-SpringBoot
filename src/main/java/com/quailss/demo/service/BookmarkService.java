@@ -3,6 +3,7 @@ package com.quailss.demo.service;
 import com.quailss.demo.domain.Bookmark;
 import com.quailss.demo.domain.Member;
 import com.quailss.demo.domain.Recipe;
+import com.quailss.demo.domain.dto.BookmarkDto;
 import com.quailss.demo.exception.EntityNotFoundException;
 import com.quailss.demo.repository.BookmarkRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -18,8 +20,17 @@ public class BookmarkService {
     private final BookmarkRepository bookmarkRepository;
     private final RecipeService recipeService;
 
-    public List<Bookmark> findByMemberId(Long memberId) {
-        return bookmarkRepository.findByMemberId(memberId);
+    public List<BookmarkDto> findByMemberId(Long memberId) {
+        List<Bookmark> bookmarks = bookmarkRepository.findByMemberId(memberId);
+        return bookmarks.stream()
+                .map(bookmark -> new BookmarkDto(
+                        bookmark.getId(),
+                        bookmark.getMember().getId(),
+                        bookmark.getRecipe().getId(),
+                        bookmark.getRecipe().getName(),
+                        bookmark.getRecipe().getImage_url()
+                ))
+                .collect(Collectors.toList());
     }
 
     public void addBookmark(Long recipeId, Member member) {

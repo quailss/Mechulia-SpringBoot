@@ -4,6 +4,7 @@ import com.quailss.demo.domain.Member;
 import com.quailss.demo.domain.Recipe;
 import com.quailss.demo.domain.Review;
 import com.quailss.demo.domain.dto.ReviewCommand;
+import com.quailss.demo.domain.dto.ReviewDto;
 import com.quailss.demo.exception.EntityNotFoundException;
 import com.quailss.demo.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,12 +26,18 @@ public class ReviewService {
         return reviewRepository.findById(reviewId);
     }
 
-    public List<Review> findByRecipeId(Long recipeId) {
-        return reviewRepository.findByRecipeId(recipeId);
+    public List<ReviewDto> findByRecipeId(Long recipeId) {
+        List<Review> reviews = reviewRepository.findByRecipeId(recipeId);
+        return reviews.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 
-    public List<Review> findByMemberId(Long memberId) {
-        return reviewRepository.findByMemberId(memberId);
+    public List<ReviewDto> findByMemberId(Long memberId) {
+        List<Review> reviews = reviewRepository.findByMemberId(memberId);
+        return reviews.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 
     public void insertReview(Long recipeId, Member member, BigDecimal score, String content) {
@@ -65,4 +73,19 @@ public class ReviewService {
 
         reviewRepository.delete(review);
     }
+
+    private ReviewDto convertToDto(Review review) {
+        return new ReviewDto(
+                review.getId(),
+                review.getScore(),
+                review.getContent(),
+                review.getCreatedAt(),
+                review.getUpdatedAt(),
+                review.getMember().getId(),
+                review.getMember().getName(),
+                review.getMember().getStatus(),
+                review.getRecipe().getId()
+        );
+    }
+
 }
