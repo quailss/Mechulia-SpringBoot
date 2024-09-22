@@ -74,6 +74,5 @@ public class Member {
         this.phonenumber = phone;
         this.birthday = birthday;
         this.provider = Provider.LOCAL;
-        this.createdAt = LocalDateTime.now();
     }
 }
