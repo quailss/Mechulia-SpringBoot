@@ -5,6 +5,7 @@ import com.quailss.demo.domain.Recipe;
 import com.quailss.demo.domain.Review;
 import com.quailss.demo.domain.dto.ReviewCommand;
 import com.quailss.demo.domain.enums.MemberStatus;
+import com.quailss.demo.exception.EntityNotFoundException;
 import com.quailss.demo.service.AuthService;
 import com.quailss.demo.service.RecipeService;
 import com.quailss.demo.service.ReviewService;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -48,16 +50,14 @@ public class ReviewController {
     public ResponseEntity<String> writeReview(HttpSession session,
                                               @PathVariable Long recipeId,
                                               @RequestBody ReviewCommand reviewCommand){
-        //유저 정보 가져오기 - 세션
         Member loggedInMember = authService.getLoggedInMember(session)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인하지 않은 사용자입니다."));
-
-        Recipe existingRecipe = recipeService.getRecipe(recipeId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "레시피를 찾을 수 없습니다."));
-
-        reviewService.insertReview(existingRecipe, loggedInMember, reviewCommand.getScore(), reviewCommand.getContent());
-
-        return ResponseEntity.ok("Review successfully saved");
+                .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("로그인하지 않은 사용자입니다."));
+        try {
+            reviewService.insertReview(recipeId, loggedInMember, reviewCommand.getScore(), reviewCommand.getContent());
+            return ResponseEntity.ok("Review successfully saved");
+        }catch (EntityNotFoundException.RecipeNotFoundException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     @PutMapping("/{reviewId}")
@@ -65,33 +65,25 @@ public class ReviewController {
                                                @PathVariable Long reviewId,
                                                @RequestBody ReviewCommand reviewCommand){
         Member loggedInMember = authService.getLoggedInMember(session)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인하지 않은 사용자입니다."));
-
-        Review existingReview = reviewService.findById(reviewId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 리뷰입니다."));
-
-        if (!existingReview.getMember().getId().equals(loggedInMember.getId())) {
-            throw new AccessDeniedException("리뷰 작성자가 아닙니다.");
+                .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("로그인하지 않은 사용자입니다."));
+        try {
+            Review updatedReview = reviewService.updateReview(reviewId, loggedInMember, reviewCommand);
+            return ResponseEntity.ok(updatedReview);
+        }catch (EntityNotFoundException.RecipeNotFoundException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
-        Review updatedReview = reviewService.updateReview(existingReview.getId(), reviewCommand);
-
-        return ResponseEntity.ok(updatedReview);
     }
 
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<String> deleteReview(HttpSession session, @PathVariable Long reviewId){
         Member loggedInMember = authService.getLoggedInMember(session)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인하지 않은 사용자입니다."));
-
-        Review review = reviewService.findById(reviewId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 리뷰입니다."));
-
-        if(!review.getMember().getEmail().equals(loggedInMember.getEmail()))
-            throw new AccessDeniedException("리뷰 작성자가 아닙니다.");
+                .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("로그인하지 않은 사용자입니다."));
 
         try {
-            reviewService.deleteReview(review);
+            reviewService.deleteReview(reviewId, loggedInMember);
             return ResponseEntity.ok("Review deleted successfully");
+        }catch(EntityNotFoundException.ReviewNotFoundException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
