@@ -35,4 +35,5 @@ public class RegisterCommand {
 
     @NotNull(message = "생년월일은 필수입니다.")
     private LocalDate birth;
+
 }

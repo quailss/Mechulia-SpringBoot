@@ -37,21 +37,22 @@ public class AuthService {
                 return loginDto;
             }
         }
-        return null;
+
+        throw new NullPointerException();
     }
 
     public String getAuthenticatedMemberId(String name, String phonenumber){
-        Optional<Member> member = authRepository.findByPhonenumber(phonenumber);
+        Optional<Member> member = authRepository.findByNameAndPhonenumber(name, phonenumber);
 
         if(member.isPresent()){
             return member.get().getEmail();
         }
 
-        return null;
+        throw new NullPointerException();
     }
 
     public Long verifyAndResetPassword(String email, String phoneNumber, String password){
-        Optional<Member> memberPhoneNumber = authRepository.findByPhonenumber(phoneNumber);
+        Optional<Member> memberPhoneNumber = authRepository.findByEmailAndPhonenumber(email,phoneNumber);
 
         if(memberPhoneNumber.isPresent()){
             Member member = memberPhoneNumber.get();
@@ -60,7 +61,7 @@ public class AuthService {
             authRepository.save(member);
             return member.getId();
         }
-        return null;
+        throw new NullPointerException();
     }
 
     public Optional<Member> findByEmailAndProvider(String loggedInEmail, Provider provider) {

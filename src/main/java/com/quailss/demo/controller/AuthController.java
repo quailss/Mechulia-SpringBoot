@@ -86,7 +86,7 @@ public class AuthController {
     }
 
     //비밀번호 재설정
-    @PostMapping
+    @PostMapping("reset-password")
     public ResponseEntity<String> setPassword(@RequestBody SetPasswordDto setPasswordDto){
         try{
             Long memberPassword = authService.verifyAndResetPassword(setPasswordDto.getEmail(), setPasswordDto.getPhoneNumber(), setPasswordDto.getPassword());

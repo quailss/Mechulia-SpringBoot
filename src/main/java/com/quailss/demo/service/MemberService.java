@@ -1,6 +1,7 @@
 package com.quailss.demo.service;
 
 import com.quailss.demo.domain.Member;
+import com.quailss.demo.domain.enums.MemberStatus;
 import com.quailss.demo.domain.enums.Provider;
 import com.quailss.demo.repository.AuthRepository;
 import com.quailss.demo.repository.MemberRepository;
@@ -30,7 +31,7 @@ public class MemberService {
             return member.getPhonenumber();
         }
 
-        return null;
+        throw new NullPointerException();
     }
 
     // 이름 변경
@@ -44,7 +45,7 @@ public class MemberService {
             return member.getId();
         }
 
-        return null;
+        throw new NullPointerException();
     }
 
     //생일 변경
@@ -58,7 +59,21 @@ public class MemberService {
             return member.getId();
         }
 
-        return null;
+        throw new NullPointerException();
+    }
+
+    //탈퇴 요청 처리
+    public Long changeWithdrawalMemberstatus(String memberSesstion, Provider provider){
+        Optional<Member> withdrawalMember = authRepository.findByEmailAndProvider(memberSesstion,provider);
+
+        if(withdrawalMember.isPresent()){
+            Member member = withdrawalMember.get();
+            member.setStatus(MemberStatus.DEACTIVATED);
+            memberRepository.save(member);
+            return member.getId();
+        }
+
+        throw new NullPointerException();
     }
 
 }
