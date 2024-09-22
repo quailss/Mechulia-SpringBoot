@@ -4,11 +4,8 @@ import com.quailss.demo.domain.Member;
 import com.quailss.demo.domain.Recipe;
 import com.quailss.demo.domain.Review;
 import com.quailss.demo.domain.dto.ReviewCommand;
-import com.quailss.demo.domain.dto.ReviewDto;
 import com.quailss.demo.domain.enums.MemberStatus;
-import com.quailss.demo.domain.enums.Provider;
 import com.quailss.demo.service.AuthService;
-import com.quailss.demo.service.MemberService;
 import com.quailss.demo.service.RecipeService;
 import com.quailss.demo.service.ReviewService;
 import jakarta.servlet.http.HttpSession;
@@ -18,14 +15,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/review")
+@RequestMapping("/api/reviews")
 public class ReviewController {
     private final ReviewService reviewService;
     private final RecipeService recipeService;
@@ -68,7 +63,7 @@ public class ReviewController {
     @PutMapping("/{reviewId}")
     public ResponseEntity<Review> updateReview(HttpSession session,
                                                @PathVariable Long reviewId,
-                                               @RequestBody ReviewDto reviewDto){
+                                               @RequestBody ReviewCommand reviewCommand){
         Member loggedInMember = authService.getLoggedInMember(session)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인하지 않은 사용자입니다."));
 
@@ -78,7 +73,7 @@ public class ReviewController {
         if (!existingReview.getMember().getId().equals(loggedInMember.getId())) {
             throw new AccessDeniedException("리뷰 작성자가 아닙니다.");
         }
-        Review updatedReview = reviewService.updateReview(existingReview.getId(), reviewDto);
+        Review updatedReview = reviewService.updateReview(existingReview.getId(), reviewCommand);
 
         return ResponseEntity.ok(updatedReview);
     }

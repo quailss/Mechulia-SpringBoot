@@ -58,11 +58,6 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private MemberStatus status;
 
-    /*public void updateProfile(String nickname, String profileImage) {
-        this.name = nickname;
-        this.profile_image = profileImage;
-    }*/
-
     //소셜 로그인 생성자
     public Member(String email, String name, Provider provider, String providerId) {
         this.email = email;

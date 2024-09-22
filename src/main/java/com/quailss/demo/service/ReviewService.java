@@ -4,7 +4,6 @@ import com.quailss.demo.domain.Member;
 import com.quailss.demo.domain.Recipe;
 import com.quailss.demo.domain.Review;
 import com.quailss.demo.domain.dto.ReviewCommand;
-import com.quailss.demo.domain.dto.ReviewDto;
 import com.quailss.demo.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -40,8 +39,8 @@ public class ReviewService {
         reviewRepository.save(newReview);
     }
 
-    public Review updateReview(Long reviewId, ReviewDto reviewDto) {
-        return reviewRepository.updateReview(reviewId, reviewDto.getScore(), reviewDto.getContent());
+    public Review updateReview(Long reviewId, ReviewCommand reviewCommand) {
+        return reviewRepository.updateReview(reviewId, reviewCommand.getScore(), reviewCommand.getContent());
     }
 
     public void deleteReview(Review review) {

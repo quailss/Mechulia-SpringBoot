@@ -1,6 +1,5 @@
 package com.quailss.demo.controller;
 
-import com.quailss.demo.domain.Member;
 import com.quailss.demo.domain.dto.FindIdDto;
 import com.quailss.demo.domain.dto.LoginDto;
 import com.quailss.demo.domain.dto.RegisterDto;
@@ -16,9 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor

@@ -2,8 +2,6 @@ package com.quailss.demo.controller;
 
 import com.quailss.demo.domain.Member;
 import com.quailss.demo.domain.Bookmark;
-import com.quailss.demo.domain.Recipe;
-import com.quailss.demo.domain.enums.Provider;
 import com.quailss.demo.service.AuthService;
 import com.quailss.demo.service.BookmarkService;
 import com.quailss.demo.service.RecipeService;
@@ -13,10 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
