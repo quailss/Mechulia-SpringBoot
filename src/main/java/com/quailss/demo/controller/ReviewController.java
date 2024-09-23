@@ -16,7 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,17 +26,24 @@ import java.util.List;
 public class ReviewController {
     private final ReviewService reviewService;
     private final AuthService authService;
+    private final RecipeService recipeService;
 
     @GetMapping("/recipe/{recipeId}") //특정 레시피에 대한 리뷰들
-    public ResponseEntity<List<ReviewDto>> getReviews(@PathVariable Long recipeId){
+    public ResponseEntity<Map<String, Object>> getReviews(@PathVariable Long recipeId){
+        Map<String, Object> response = new HashMap<>();
+
         List<ReviewDto> reviewList = reviewService.findByRecipeId(recipeId);
         
         for(ReviewDto reviewDto : reviewList){
             if(reviewDto.getMemberStatus() == MemberStatus.DEACTIVATED)
                 reviewDto.setMemberName("알수없음");
         }
-        
-        return ResponseEntity.ok(reviewList);
+
+        response.put("reviews", reviewList);
+        response.put("avg", recipeService.getRecipe(recipeId).get().getAverage());
+        response.put("cnt", reviewList.size());
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/member")  //특정 회원이 작성한 리뷰들
