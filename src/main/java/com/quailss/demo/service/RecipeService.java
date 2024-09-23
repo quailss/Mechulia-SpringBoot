@@ -9,12 +9,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class RecipeService {
     private final RecipeRepository recipeRepository;
+    private final ReviewService reviewService;
 
     public Page<Recipe> getRecipes(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
@@ -43,5 +46,14 @@ public class RecipeService {
             return recipeRepository.findAllByMenuId(menuId, pageable);
         else
             return recipeRepository.findAllByMenuId(pageable);
+    }
+
+    public void updateRecipeAvg(Recipe recipe) {
+        int reviewCnt = reviewService.findByRecipeId(recipe.getId()).size();
+        BigDecimal totalScore = recipe.getAverage().multiply(BigDecimal.valueOf(reviewCnt));
+        BigDecimal newAvg = totalScore.divide(BigDecimal.valueOf(reviewCnt), 2, RoundingMode.HALF_UP);
+        recipe.setAverage(newAvg);
+
+        recipeRepository.save(recipe);
     }
 }
