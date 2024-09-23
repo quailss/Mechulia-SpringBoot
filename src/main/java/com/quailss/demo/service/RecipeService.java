@@ -24,12 +24,26 @@ public class RecipeService {
     public Page<Recipe> getRecipesByMenuIdAndKeyword(Long menuId, String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
 
-        if(menuId == 0)
-            return recipeRepository.findAllByKeyword(keyword, pageable);
-        else if(menuId > 0 && menuId < 5)
-            return recipeRepository.findAllByMenuIdAndKeyword(menuId, keyword, pageable);
-        else
-            return recipeRepository.findAllByMenuIdAndKeyword(keyword, pageable);
+        String[] nations = new String[]{"한국","서양","중국","일본","미국","이탈리아","동남아","프랑스","멕시코","독일","인도"};
+        String[] menuArr = new String[]{"한식","양식","중식","일식","미국식","이탈리아식","동남아식","프랑스식","멕시코식","독일식","인도식"};
+
+        int idx = -1;
+        for(int i=0;i<menuArr.length;i++)
+            if(keyword.equals(menuArr[i]) || keyword.equals(nations[i])){
+                idx = i+1;
+                break;
+            }
+
+        if(idx != -1){
+            return recipeRepository.findAllByMenuId(Long.valueOf(idx), pageable);
+        }else{
+            if(menuId == 0)
+                return recipeRepository.findAllByKeyword(keyword, pageable);
+            else if(menuId > 0 && menuId < 5)
+                return recipeRepository.findAllByMenuIdAndKeyword(menuId, keyword, pageable);
+            else
+                return recipeRepository.findAllByMenuIdAndKeyword(keyword, pageable);
+        }
     }
 
     public Optional<Recipe> getRecipe(Long recipeId){
