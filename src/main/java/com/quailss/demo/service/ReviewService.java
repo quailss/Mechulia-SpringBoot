@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -54,7 +55,7 @@ public class ReviewService {
                 .build();
         reviewRepository.save(newReview);
 
-        recipeService.updateRecipeAvg(recipe);
+        updateRecipeAvg(recipe);
     }
 
     @Transactional
@@ -65,7 +66,7 @@ public class ReviewService {
         if (!existingReview.getMember().getId().equals(loggedInMember.getId())) {
             throw new AccessDeniedException("리뷰 작성자가 아닙니다.");
         }
-        recipeService.updateRecipeAvg(existingReview.getRecipe());
+        updateRecipeAvg(existingReview.getRecipe());
         return reviewRepository.updateReview(reviewId, reviewCommand.getScore(), reviewCommand.getContent());
     }
 
@@ -78,7 +79,7 @@ public class ReviewService {
             throw new AccessDeniedException("리뷰 작성자가 아닙니다.");
 
         reviewRepository.delete(review);
-        recipeService.updateRecipeAvg(review.getRecipe());
+        updateRecipeAvg(review.getRecipe());
     }
 
     private ReviewDto convertToDto(Review review) {
@@ -95,4 +96,12 @@ public class ReviewService {
         );
     }
 
+    private void updateRecipeAvg(Recipe recipe) {
+        int reviewCnt = findByRecipeId(recipe.getId()).size();
+        BigDecimal totalScore = recipe.getAverage().multiply(BigDecimal.valueOf(reviewCnt));
+        BigDecimal newAvg = totalScore.divide(BigDecimal.valueOf(reviewCnt), 2, RoundingMode.HALF_UP);
+        recipe.setAverage(newAvg);
+
+        recipeService.save(recipe);
+    }
 }
