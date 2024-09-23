@@ -1,7 +1,6 @@
 package com.quailss.demo.controller;
 
 import com.quailss.demo.domain.Member;
-import com.quailss.demo.domain.Recipe;
 import com.quailss.demo.domain.Review;
 import com.quailss.demo.domain.dto.ReviewCommand;
 import com.quailss.demo.domain.dto.ReviewDto;
@@ -14,10 +13,8 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -26,7 +23,6 @@ import java.util.List;
 @RequestMapping("/api/reviews")
 public class ReviewController {
     private final ReviewService reviewService;
-    private final RecipeService recipeService;
     private final AuthService authService;
 
     @GetMapping("/recipe/{recipeId}") //특정 레시피에 대한 리뷰들
@@ -41,9 +37,12 @@ public class ReviewController {
         return ResponseEntity.ok(reviewList);
     }
 
-    @GetMapping("/member/{memberId}")  //특정 회원이 작성한 리뷰들
-    public ResponseEntity<List<ReviewDto>> getReviewsByMember(@PathVariable Long memberId){
-        List<ReviewDto> reviewList = reviewService.findByMemberId(memberId);
+    @GetMapping("/member")  //특정 회원이 작성한 리뷰들
+    public ResponseEntity<List<ReviewDto>> getReviewsByMember(HttpSession session){
+        Member loggedInMember = authService.getLoggedInMember(session)
+                .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("로그인하지 않은 사용자입니다."));
+
+        List<ReviewDto> reviewList = reviewService.findByMemberId(loggedInMember.getId());
         return ResponseEntity.ok(reviewList);
     }
 
