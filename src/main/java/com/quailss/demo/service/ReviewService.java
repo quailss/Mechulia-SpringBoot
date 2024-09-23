@@ -10,8 +10,10 @@ import com.quailss.demo.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -40,6 +42,7 @@ public class ReviewService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void insertReview(Long recipeId, Member member, BigDecimal score, String content) {
         Recipe recipe = recipeService.getRecipe(recipeId)
                 .orElseThrow(() -> new EntityNotFoundException.RecipeNotFoundException("레시피를 찾을 수 없습니다."));
@@ -51,8 +54,11 @@ public class ReviewService {
                 .content(content)
                 .build();
         reviewRepository.save(newReview);
+
+        updateRecipeAvg(recipe);
     }
 
+    @Transactional
     public Review updateReview(Long reviewId, Member loggedInMember, ReviewCommand reviewCommand) {
         Review existingReview = findById(reviewId)
                 .orElseThrow(() -> new EntityNotFoundException.ReviewNotFoundException("존재하지 않는 리뷰입니다."));
@@ -60,10 +66,11 @@ public class ReviewService {
         if (!existingReview.getMember().getId().equals(loggedInMember.getId())) {
             throw new AccessDeniedException("리뷰 작성자가 아닙니다.");
         }
-
+        updateRecipeAvg(existingReview.getRecipe());
         return reviewRepository.updateReview(reviewId, reviewCommand.getScore(), reviewCommand.getContent());
     }
 
+    @Transactional
     public void deleteReview(Long reviewId, Member loggedInMember) {
         Review review = findById(reviewId)
                 .orElseThrow(() -> new EntityNotFoundException.ReviewNotFoundException("존재하지 않는 리뷰입니다."));
@@ -72,6 +79,7 @@ public class ReviewService {
             throw new AccessDeniedException("리뷰 작성자가 아닙니다.");
 
         reviewRepository.delete(review);
+        updateRecipeAvg(review.getRecipe());
     }
 
     private ReviewDto convertToDto(Review review) {
@@ -88,4 +96,12 @@ public class ReviewService {
         );
     }
 
+    private void updateRecipeAvg(Recipe recipe) {
+        int reviewCnt = findByRecipeId(recipe.getId()).size();
+        BigDecimal totalScore = recipe.getAverage().multiply(BigDecimal.valueOf(reviewCnt));
+        BigDecimal newAvg = totalScore.divide(BigDecimal.valueOf(reviewCnt), 2, RoundingMode.HALF_UP);
+        recipe.setAverage(newAvg);
+
+        recipeService.save(recipe);
+    }
 }

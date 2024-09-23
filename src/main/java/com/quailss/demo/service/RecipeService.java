@@ -44,4 +44,8 @@ public class RecipeService {
         else
             return recipeRepository.findAllByMenuId(pageable);
     }
+
+    public void save(Recipe recipe) {
+        recipeRepository.save(recipe);
+    }
 }
