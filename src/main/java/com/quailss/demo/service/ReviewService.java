@@ -59,15 +59,18 @@ public class ReviewService {
     }
 
     @Transactional
-    public Review updateReview(Long reviewId, Member loggedInMember, ReviewCommand reviewCommand) {
+    public void updateReview(Long reviewId, Member loggedInMember, ReviewCommand reviewCommand) {
         Review existingReview = findById(reviewId)
                 .orElseThrow(() -> new EntityNotFoundException.ReviewNotFoundException("존재하지 않는 리뷰입니다."));
 
         if (!existingReview.getMember().getId().equals(loggedInMember.getId())) {
             throw new AccessDeniedException("리뷰 작성자가 아닙니다.");
         }
+        existingReview.setScore(reviewCommand.getScore());
+        existingReview.setContent(reviewCommand.getContent());
+
         updateRecipeAvg(existingReview.getRecipe());
-        return reviewRepository.updateReview(reviewId, reviewCommand.getScore(), reviewCommand.getContent());
+        reviewRepository.save(existingReview);
     }
 
     @Transactional
@@ -97,7 +100,6 @@ public class ReviewService {
     }
 
     private void updateRecipeAvg(Recipe recipe) {
-        // 리뷰 개수를 계산
         List<ReviewDto> reviews = findByRecipeId(recipe.getId());
         int reviewCnt = reviews.size();
 

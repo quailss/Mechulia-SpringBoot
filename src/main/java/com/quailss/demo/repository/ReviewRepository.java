@@ -17,8 +17,4 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     List<Review> findByMemberId(Long memberId);
 
-    @Modifying
-    @Query("UPDATE Review r SET r.score = :score, r.content = :content WHERE r.id = :reviewId")
-    Review updateReview(@Param("id") Long reviewId, @Param("score") BigDecimal score, @Param("content") String content);
-
 }
