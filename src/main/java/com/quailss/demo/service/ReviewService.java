@@ -97,11 +97,20 @@ public class ReviewService {
     }
 
     private void updateRecipeAvg(Recipe recipe) {
-        int reviewCnt = findByRecipeId(recipe.getId()).size();
-        BigDecimal totalScore = recipe.getAverage().multiply(BigDecimal.valueOf(reviewCnt));
-        BigDecimal newAvg = totalScore.divide(BigDecimal.valueOf(reviewCnt), 2, RoundingMode.HALF_UP);
+        // 리뷰 개수를 계산
+        List<ReviewDto> reviews = findByRecipeId(recipe.getId());
+        int reviewCnt = reviews.size();
+
+        // 모든 리뷰의 점수를 더한 후 평균 계산
+        BigDecimal totalScore = reviews.stream()
+                .map(ReviewDto::getScore)
+                .reduce(BigDecimal.ZERO, BigDecimal::add); // 리뷰의 총합 계산
+
+        BigDecimal newAvg = totalScore.divide(BigDecimal.valueOf(reviewCnt), 2, RoundingMode.HALF_UP); // 새로운 평균 계산
         recipe.setAverage(newAvg);
 
+        // 새로운 평균 점수를 레시피에 저장
         recipeService.save(recipe);
     }
+
 }
