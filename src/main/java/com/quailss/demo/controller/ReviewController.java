@@ -70,14 +70,15 @@ public class ReviewController {
     }
 
     @PutMapping("/{reviewId}")
-    public ResponseEntity<Review> updateReview(HttpSession session,
+    public ResponseEntity<String> updateReview(HttpSession session,
                                                @PathVariable Long reviewId,
                                                @RequestBody ReviewCommand reviewCommand){
         Member loggedInMember = authService.getLoggedInMember(session)
                 .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("로그인하지 않은 사용자입니다."));
+
         try {
-            Review updatedReview = reviewService.updateReview(reviewId, loggedInMember, reviewCommand);
-            return ResponseEntity.ok(updatedReview);
+            reviewService.updateReview(reviewId, loggedInMember, reviewCommand);
+            return ResponseEntity.ok("Review updated successfully");
         }catch (EntityNotFoundException.RecipeNotFoundException e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
