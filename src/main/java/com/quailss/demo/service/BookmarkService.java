@@ -3,14 +3,16 @@ package com.quailss.demo.service;
 import com.quailss.demo.domain.Bookmark;
 import com.quailss.demo.domain.Member;
 import com.quailss.demo.domain.Recipe;
+import com.quailss.demo.domain.dto.BookmarkDto;
+import com.quailss.demo.exception.EntityNotFoundException;
 import com.quailss.demo.repository.BookmarkRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -18,13 +20,22 @@ public class BookmarkService {
     private final BookmarkRepository bookmarkRepository;
     private final RecipeService recipeService;
 
-    public List<Bookmark> findByMemberId(Long memberId) {
-        return bookmarkRepository.findByMemberId(memberId);
+    public List<BookmarkDto> findByMemberId(Long memberId) {
+        List<Bookmark> bookmarks = bookmarkRepository.findByMemberId(memberId);
+        return bookmarks.stream()
+                .map(bookmark -> new BookmarkDto(
+                        bookmark.getId(),
+                        bookmark.getMember().getId(),
+                        bookmark.getRecipe().getId(),
+                        bookmark.getRecipe().getName(),
+                        bookmark.getRecipe().getImage_url()
+                ))
+                .collect(Collectors.toList());
     }
 
     public void addBookmark(Long recipeId, Member member) {
         Recipe isExistingRecipe = recipeService.getRecipe(recipeId)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 레시피입니다."));
+                .orElseThrow(() -> new EntityNotFoundException.RecipeNotFoundException("레시피를 찾을 수 없습니다."));
 
         Bookmark newBookmark = Bookmark.builder()
                 .member(member)
@@ -32,7 +43,13 @@ public class BookmarkService {
                 .build();
         bookmarkRepository.save(newBookmark);
     }
-    public void deleteBookmark(Bookmark bookmark) {
+    public void deleteBookmark(Member loggedInMember, Long bookmarkId) {
+        Bookmark bookmark = findById(bookmarkId)
+                .orElseThrow(() -> new EntityNotFoundException.BookmarkNotFoundException("북마크를 찾을 수 없습니다."));
+
+        if(!bookmark.getMember().getEmail().equals(loggedInMember.getEmail()))
+            throw new AccessDeniedException("북마크 등록자가 아닙니다.");
+
         bookmarkRepository.delete(bookmark);
     }
 
@@ -41,14 +58,21 @@ public class BookmarkService {
     }
 
     public Optional<Bookmark> findByMemberIdAndRecipeId(Long memberId, Long recipeId) {
-        return bookmarkRepository.findByMemberIdAndRecipeId(memberId, recipeId);
+        Recipe isExistingRecipe = recipeService.getRecipe(recipeId)
+                .orElseThrow(() -> new EntityNotFoundException.RecipeNotFoundException("레시피를 찾을 수 없습니다."));
+
+        return bookmarkRepository.findByMemberIdAndRecipeId(memberId, isExistingRecipe.getId());
     }
 
-    public boolean isRecipeBookmarkedByMember(Long memberId, Long recipeId) {
-        Recipe isExistingRecipe = recipeService.getRecipe(recipeId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "레시피를 찾을 수 없습니다."));
+    public void deleteBookmarkByRecipe(Member loggedInMember, Long recipeId) {
+        Optional<Bookmark> bookmarkOptional = findByMemberIdAndRecipeId(loggedInMember.getId(), recipeId);
 
-        Optional<Bookmark> bookmarkOptional = findByMemberIdAndRecipeId(memberId, isExistingRecipe.getId());
-        return bookmarkOptional.isPresent();
+        if(!bookmarkOptional.get().getMember().getEmail().equals(loggedInMember.getEmail()))
+            throw new AccessDeniedException("북마크 등록자가 아닙니다.");
+
+        if(!bookmarkOptional.get().getMember().getEmail().equals(loggedInMember.getEmail()))
+            throw new AccessDeniedException("북마크 등록자가 아닙니다.");
+
+        bookmarkRepository.delete(bookmarkOptional.get());
     }
 }

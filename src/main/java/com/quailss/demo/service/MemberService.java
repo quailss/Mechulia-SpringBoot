@@ -23,6 +23,7 @@ public class MemberService {
     // 휴대폰 번호 변경
     public String changePhoneNumber(String memberSession, String phoneNumber, Provider provider){
         Optional<Member> memberPhoneNumber = authRepository.findByEmailAndProvider(memberSession, provider);
+
         if(memberPhoneNumber.isPresent()){
             Member member = memberPhoneNumber.get();
             member.setPhonenumber(phoneNumber);

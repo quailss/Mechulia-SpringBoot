@@ -38,13 +38,11 @@ public class Member {
     private Provider provider;
     private String provider_id;
     //private String profile_image;
-    /*
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<Bookmark> bookmarkList = new ArrayList<>();
 
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Bookmark> bookmarkList = new ArrayList<>();
     @OneToMany(mappedBy = "member")
     private List<Review> reviewList = new ArrayList<>();
-    */
 
     @CreatedDate
     @Column(name = "created_at")
@@ -58,18 +56,12 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private MemberStatus status;
 
-    /*public void updateProfile(String nickname, String profileImage) {
-        this.name = nickname;
-        this.profile_image = profileImage;
-    }*/
-
     //소셜 로그인 생성자
     public Member(String email, String name, Provider provider, String providerId) {
         this.email = email;
         this.name = name;
         this.provider = provider;
         this.provider_id = providerId;
-        this.createdAt = LocalDateTime.now();
     }
 
     public Member(String email, String password, String name, String phone, LocalDate birthday) {
@@ -79,6 +71,5 @@ public class Member {
         this.phonenumber = phone;
         this.birthday = birthday;
         this.provider = Provider.LOCAL;
-        this.createdAt = LocalDateTime.now();
     }
 }

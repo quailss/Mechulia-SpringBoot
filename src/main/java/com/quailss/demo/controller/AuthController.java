@@ -1,9 +1,8 @@
 package com.quailss.demo.controller;
 
-import com.quailss.demo.domain.Member;
 import com.quailss.demo.domain.dto.FindIdDto;
 import com.quailss.demo.domain.dto.LoginDto;
-import com.quailss.demo.domain.dto.RegisterDto;
+import com.quailss.demo.domain.dto.RegisterCommand;
 import com.quailss.demo.domain.dto.SetPasswordDto;
 import com.quailss.demo.domain.enums.Provider;
 import com.quailss.demo.service.AuthService;
@@ -16,9 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -39,14 +36,14 @@ public class AuthController {
 
     //회원 등록
     @PostMapping("/register")
-    public ResponseEntity<Boolean> registerMember(@RequestBody @Valid RegisterDto registerDto, BindingResult bindingResult) {
+    public ResponseEntity<Boolean> registerMember(@RequestBody @Valid RegisterCommand registerCommand, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
            System.out.println("errors " + bindingResult.getAllErrors());
             return ResponseEntity.badRequest().body(false);
         }
 
         try {
-            authService.register(registerDto);
+            authService.register(registerCommand);
             return ResponseEntity.ok(true);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
