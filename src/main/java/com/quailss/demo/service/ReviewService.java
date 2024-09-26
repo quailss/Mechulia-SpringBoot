@@ -95,7 +95,9 @@ public class ReviewService {
                 review.getMember().getId(),
                 review.getMember().getName(),
                 review.getMember().getStatus(),
-                review.getRecipe().getId()
+                review.getRecipe().getId(),
+                review.getRecipe().getName(),
+                review.getRecipe().getImage_url()
         );
     }
 
