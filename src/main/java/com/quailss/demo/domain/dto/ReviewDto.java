@@ -20,4 +20,6 @@ public class ReviewDto {
     private String memberName;
     private MemberStatus memberStatus;
     private Long recipeId;
+    private String recipeName;
+    private String imgUrl;
 }
