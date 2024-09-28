@@ -16,7 +16,7 @@ public class MemberCleanupService {
 
     @Scheduled(cron = "0 0 0 * * ?")
     @Transactional
-    public void deleteDEACTIVATEDMembers(){
+    public void cleanupMembers(){
         LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
         memberRepository.deleteByStatusAndDeletedAtBefore(MemberStatus.DEACTIVATED, thirtyDaysAgo);
     }
