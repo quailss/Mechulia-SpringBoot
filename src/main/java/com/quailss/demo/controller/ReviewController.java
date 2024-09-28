@@ -1,7 +1,6 @@
 package com.quailss.demo.controller;
 
 import com.quailss.demo.domain.Member;
-import com.quailss.demo.domain.Review;
 import com.quailss.demo.domain.dto.ReviewCommand;
 import com.quailss.demo.domain.dto.ReviewDto;
 import com.quailss.demo.domain.enums.MemberStatus;
