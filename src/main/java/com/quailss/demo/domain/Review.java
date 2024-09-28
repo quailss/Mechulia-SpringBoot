@@ -1,5 +1,6 @@
 package com.quailss.demo.domain;
 
+import com.quailss.demo.domain.enums.MemberStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -35,9 +36,13 @@ public class Review {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @ManyToOne
+    private Long memberId;
+    private String memberName;
+    private MemberStatus memberStatus;
+
+    /*@ManyToOne
     @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
+    private Member member;*/
 
     @ManyToOne
     @JoinColumn(name = "recipe_id", nullable = false)

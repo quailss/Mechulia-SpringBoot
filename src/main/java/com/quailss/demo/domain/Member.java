@@ -41,8 +41,10 @@ public class Member {
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Bookmark> bookmarkList = new ArrayList<>();
+/*
     @OneToMany(mappedBy = "member")
     private List<Review> reviewList = new ArrayList<>();
+*/
 
     @CreatedDate
     @Column(name = "created_at")

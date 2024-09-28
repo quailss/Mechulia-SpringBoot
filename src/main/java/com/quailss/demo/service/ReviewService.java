@@ -48,7 +48,9 @@ public class ReviewService {
                 .orElseThrow(() -> new EntityNotFoundException.RecipeNotFoundException("레시피를 찾을 수 없습니다."));
 
         Review newReview = Review.builder()
-                .member(member)
+                .memberId(member.getId())
+                .memberName(member.getName())
+                .memberStatus(member.getStatus())
                 .recipe(recipe)
                 .score(score)
                 .content(content)
@@ -63,7 +65,7 @@ public class ReviewService {
         Review existingReview = findById(reviewId)
                 .orElseThrow(() -> new EntityNotFoundException.ReviewNotFoundException("존재하지 않는 리뷰입니다."));
 
-        if (!existingReview.getMember().getId().equals(loggedInMember.getId())) {
+        if(existingReview.getMemberId() != loggedInMember.getId()) {
             throw new AccessDeniedException("리뷰 작성자가 아닙니다.");
         }
         existingReview.setScore(reviewCommand.getScore());
@@ -78,7 +80,7 @@ public class ReviewService {
         Review review = findById(reviewId)
                 .orElseThrow(() -> new EntityNotFoundException.ReviewNotFoundException("존재하지 않는 리뷰입니다."));
 
-        if(!review.getMember().getEmail().equals(loggedInMember.getEmail()))
+        if(review.getMemberId() != loggedInMember.getId())
             throw new AccessDeniedException("리뷰 작성자가 아닙니다.");
 
         reviewRepository.delete(review);
@@ -92,9 +94,9 @@ public class ReviewService {
                 review.getContent(),
                 review.getCreatedAt(),
                 review.getUpdatedAt(),
-                review.getMember().getId(),
-                review.getMember().getName(),
-                review.getMember().getStatus(),
+                review.getMemberId(),
+                review.getMemberName(),
+                review.getMemberStatus(),
                 review.getRecipe().getId(),
                 review.getRecipe().getName(),
                 review.getRecipe().getImage_url()
@@ -104,16 +106,19 @@ public class ReviewService {
     private void updateRecipeAvg(Recipe recipe) {
         List<ReviewDto> reviews = findByRecipeId(recipe.getId());
         int reviewCnt = reviews.size();
+        BigDecimal newAvg;
+        if(reviewCnt == 0)
+            newAvg = BigDecimal.ZERO;
+        else{
+            // 모든 리뷰의 점수를 더한 후 평균 계산
+            BigDecimal totalScore = reviews.stream()
+                    .map(ReviewDto::getScore)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add); // 리뷰의 총합 계산
+            newAvg = totalScore.divide(BigDecimal.valueOf(reviewCnt), 2, RoundingMode.HALF_UP); // 새로운 평균 계산
+        }
 
-        // 모든 리뷰의 점수를 더한 후 평균 계산
-        BigDecimal totalScore = reviews.stream()
-                .map(ReviewDto::getScore)
-                .reduce(BigDecimal.ZERO, BigDecimal::add); // 리뷰의 총합 계산
-
-        BigDecimal newAvg = totalScore.divide(BigDecimal.valueOf(reviewCnt), 2, RoundingMode.HALF_UP); // 새로운 평균 계산
         recipe.setAverage(newAvg);
 
-        // 새로운 평균 점수를 레시피에 저장
         recipeService.save(recipe);
     }
 
