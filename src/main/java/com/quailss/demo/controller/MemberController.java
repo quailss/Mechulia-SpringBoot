@@ -19,6 +19,7 @@ public class MemberController {
 
     private final MemberService memberService;
 
+    //회원 정보
     @GetMapping
     public ResponseEntity<ResponseMemberInfoDTO> getMemberinfo(HttpSession httpSession){
                 ResponseMemberInfoDTO responseMemberInfoDTO = memberService.getMemberInfoSession(httpSession);
