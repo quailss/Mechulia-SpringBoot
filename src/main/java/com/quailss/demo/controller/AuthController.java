@@ -60,7 +60,7 @@ public class AuthController {
     }
 
     //로그인
-    @PostMapping("login")//
+    @PostMapping("/login")//
     public ResponseEntity<String> login(@RequestBody LoginDto loginDto, HttpSession httpSession){
 
         try{
@@ -75,7 +75,7 @@ public class AuthController {
     }
 
     //아이디 찾기
-    @PostMapping("find-id")
+    @PostMapping("/find-id")
     public ResponseEntity<String> findByid(@RequestBody FindIdDto findIdDto){
         try{
             String memberEmail = authService.getAuthenticatedMemberId(findIdDto.getName(),findIdDto.getPhoneNumber());
@@ -86,7 +86,7 @@ public class AuthController {
     }
 
     //비밀번호 재설정
-    @PostMapping("reset-password")
+    @PostMapping("/reset-password")
     public ResponseEntity<String> setPassword(@RequestBody SetPasswordDto setPasswordDto){
         try{
             Long memberPassword = authService.verifyAndResetPassword(setPasswordDto.getEmail(), setPasswordDto.getPhoneNumber(), setPasswordDto.getPassword());
@@ -95,4 +95,16 @@ public class AuthController {
             return ResponseEntity.badRequest().body("잘못된 요청입니다.");
         }
     }
+
+    //로그아웃
+    @GetMapping("/logout")
+    public ResponseEntity<String> logout(HttpSession session){
+            try{
+                session.invalidate();
+                return ResponseEntity.ok("로그아웃 완료");
+            } catch (Exception e){
+                return ResponseEntity.internalServerError().body("로그아웃 실패");
+            }
+    }
+
 }
