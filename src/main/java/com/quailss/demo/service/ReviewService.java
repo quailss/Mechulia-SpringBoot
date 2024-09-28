@@ -5,6 +5,7 @@ import com.quailss.demo.domain.Recipe;
 import com.quailss.demo.domain.Review;
 import com.quailss.demo.domain.dto.ReviewCommand;
 import com.quailss.demo.domain.dto.ReviewDto;
+import com.quailss.demo.domain.enums.MemberStatus;
 import com.quailss.demo.exception.EntityNotFoundException;
 import com.quailss.demo.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
@@ -120,6 +121,17 @@ public class ReviewService {
         recipe.setAverage(newAvg);
 
         recipeService.save(recipe);
+    }
+
+    public void updateMemberStatusByMemberId(Long memberId, MemberStatus status){
+
+        List<Review> reviews = reviewRepository.findByMemberId(memberId);
+
+        for(Review r : reviews){
+            r.setMemberStatus(status);
+            reviewRepository.save(r);
+        }
+        //reviewRepository.updateMemberStatusByMemberId(memberId, status);
     }
 
 }

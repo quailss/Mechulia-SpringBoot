@@ -38,6 +38,7 @@ public class Review {
 
     private Long memberId;
     private String memberName;
+    @Enumerated(EnumType.STRING)
     private MemberStatus memberStatus;
 
     /*@ManyToOne

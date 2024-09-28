@@ -5,9 +5,9 @@ import com.quailss.demo.domain.enums.MemberStatus;
 import com.quailss.demo.domain.enums.Provider;
 import com.quailss.demo.repository.AuthRepository;
 import com.quailss.demo.repository.MemberRepository;
-import com.quailss.demo.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -17,7 +17,7 @@ import java.util.Optional;
 public class MemberService {
     private final MemberRepository memberRepository;
     private final AuthRepository authRepository;
-    private final ReviewRepository reviewRepository;
+    private final ReviewService reviewService;
 
     public Optional<Member> findById(Long member_id){
         return memberRepository.findById(member_id);
@@ -65,7 +65,8 @@ public class MemberService {
     }
 
     //탈퇴 요청 처리
-    public Long changeWithdrawalMemberstatus(String memberSesstion, Provider provider){
+    @Transactional
+    public void changeWithdrawalMemberstatus(String memberSesstion, Provider provider){
         Optional<Member> withdrawalMember = authRepository.findByEmailAndProvider(memberSesstion,provider);
 
         if(withdrawalMember.isPresent()){
@@ -73,11 +74,8 @@ public class MemberService {
             member.setStatus(MemberStatus.DEACTIVATED);
             memberRepository.save(member);
 
-            reviewRepository.updateMemberStatusByMemberId(member.getId(), MemberStatus.DEACTIVATED);
-            return member.getId();
+            reviewService.updateMemberStatusByMemberId(member.getId(), MemberStatus.DEACTIVATED);
         }
-
-        throw new NullPointerException();
     }
 
 }
