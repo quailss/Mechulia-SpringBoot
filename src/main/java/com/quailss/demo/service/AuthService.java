@@ -3,6 +3,7 @@ package com.quailss.demo.service;
 import com.quailss.demo.domain.Member;
 import com.quailss.demo.domain.dto.LoginDto;
 import com.quailss.demo.domain.dto.RegisterCommand;
+import com.quailss.demo.domain.enums.MemberStatus;
 import com.quailss.demo.domain.enums.Provider;
 import com.quailss.demo.repository.AuthRepository;
 import jakarta.servlet.http.HttpSession;
@@ -32,6 +33,7 @@ public class AuthService {
         Optional<Member> memberEmail = authRepository.findByEmailAndProvider(email, Provider.LOCAL);
 
         if (memberEmail.isPresent()) {
+            checkingOfWithdrawnMembers(memberEmail.get());
             if (email.equals(memberEmail.get().getEmail()) && passwordEncoder.matches(password,memberEmail.get().getPassword())) {
                 LoginDto loginDto = LoginDto.toLoginDto(memberEmail.get());
                 return loginDto;
@@ -39,6 +41,15 @@ public class AuthService {
         }
 
         throw new NullPointerException();
+    }
+
+    public void checkingOfWithdrawnMembers(Member member){
+
+        if(member.getStatus().equals(MemberStatus.DEACTIVATED)){
+            member.setStatus(MemberStatus.ACTIVE);
+            authRepository.save(member);
+        }
+
     }
 
     public String getAuthenticatedMemberId(String name, String phonenumber){
