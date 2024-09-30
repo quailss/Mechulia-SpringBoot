@@ -43,10 +43,10 @@ public class AuthService {
         throw new NullPointerException();
     }
 
-    public void checkingOfWithdrawnMembers(Member member){
+    private void checkingOfWithdrawnMembers(Member member){
 
         if(member.getStatus().equals(MemberStatus.DEACTIVATED)){
-            member.setStatus(MemberStatus.ACTIVE);
+            member.setStatus(null);
             authRepository.save(member);
         }
 

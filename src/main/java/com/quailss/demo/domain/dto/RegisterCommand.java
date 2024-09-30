@@ -10,7 +10,6 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
-@AllArgsConstructor
 @Getter
 @Setter
 public class RegisterCommand {

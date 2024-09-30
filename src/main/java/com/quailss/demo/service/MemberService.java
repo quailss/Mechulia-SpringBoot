@@ -7,6 +7,7 @@ import com.quailss.demo.domain.enums.Provider;
 import com.quailss.demo.repository.AuthRepository;
 import com.quailss.demo.repository.MemberRepository;
 import jakarta.servlet.http.HttpSession;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,7 @@ public class MemberService {
 
 
     //탈퇴 요청 처리
+    @Transactional
     public Long changeWithdrawalMemberstatus(HttpSession httpSession){
         Optional<Member> withdrawalMember = authService.getLoggedInMember(httpSession);
 
@@ -48,6 +50,7 @@ public class MemberService {
     }
 
     //회원정보 변경
+    @Transactional
     public Long changeMemberInfo(ResponseMemberInfoDTO responseMemberInfoDTO, HttpSession session){
 
         Optional<Member> member = authService.getLoggedInMember(session);
