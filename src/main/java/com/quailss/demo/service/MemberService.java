@@ -3,21 +3,19 @@ package com.quailss.demo.service;
 import com.quailss.demo.domain.Member;
 import com.quailss.demo.domain.dto.ResponseMemberInfoDTO;
 import com.quailss.demo.domain.enums.MemberStatus;
-import com.quailss.demo.domain.enums.Provider;
-import com.quailss.demo.repository.AuthRepository;
 import com.quailss.demo.repository.MemberRepository;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class MemberService {
+    private final ReviewService reviewService;
     private final MemberRepository memberRepository;
     private final AuthService authService;
 
@@ -37,6 +35,8 @@ public class MemberService {
             member.setStatus(MemberStatus.DEACTIVATED);
             member.setDeletedAt(LocalDateTime.now());
             memberRepository.save(member);
+
+            reviewService.updateMemberStatusByMemberId(member.getId(), MemberStatus.DEACTIVATED);
             return member.getId();
         }
 
@@ -61,6 +61,7 @@ public class MemberService {
             memberInfo.setPhonenumber(responseMemberInfoDTO.getPhoneNumber());
             memberInfo.setBirthday(responseMemberInfoDTO.getBirthday());
             memberRepository.save(memberInfo);
+
             return memberInfo.getId();
         }
 
