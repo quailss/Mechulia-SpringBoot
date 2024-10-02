@@ -62,12 +62,12 @@ public class AuthService {
         throw new NullPointerException();
     }
 
-    public Long verifyAndResetPassword(String email, String phoneNumber, String password){
+    public Long verifyAndResetPassword(String email, String phoneNumber, String newPassword){
         Optional<Member> memberPhoneNumber = authRepository.findByEmailAndPhonenumber(email,phoneNumber);
 
         if(memberPhoneNumber.isPresent()){
             Member member = memberPhoneNumber.get();
-            String encryptedPassword = passwordEncoder.encode(password);
+            String encryptedPassword = passwordEncoder.encode(newPassword);
             member.setPassword(encryptedPassword);
             authRepository.save(member);
             return member.getId();

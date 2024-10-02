@@ -2,15 +2,12 @@ package com.quailss.demo.controller;
 
 
 import com.quailss.demo.domain.dto.ResponseMemberInfoDTO;
-import com.quailss.demo.domain.enums.Provider;
 import com.quailss.demo.service.MemberService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
@@ -31,6 +28,8 @@ public class MemberController {
     public ResponseEntity<String> deleteMember(HttpSession httpSession){
         try{
             memberService.changeWithdrawalMemberstatus(httpSession);
+            httpSession.removeAttribute("Email");
+            httpSession.removeAttribute("Provider");
             return ResponseEntity.ok("회원이 탈퇴되었습니다.");
         }catch (NullPointerException e){
             return ResponseEntity.badRequest().body("잘못된 요청입니다.");
@@ -42,6 +41,7 @@ public class MemberController {
     public ResponseEntity<String> setMemberInfo(@RequestBody ResponseMemberInfoDTO responseMemberInfoDTO, HttpSession httpSession){
         try{
             memberService.changeMemberInfo(responseMemberInfoDTO, httpSession);
+            memberService.changePassword(httpSession, responseMemberInfoDTO.getPassword());
             return ResponseEntity.ok("회원정보가 수정되었습니다.");
         }catch (NullPointerException e){
             return ResponseEntity.badRequest().body("회원정보 수정 실패하였습니다.");
