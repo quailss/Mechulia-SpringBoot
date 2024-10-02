@@ -7,6 +7,7 @@ import com.quailss.demo.repository.MemberRepository;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -18,6 +19,7 @@ public class MemberService {
     private final ReviewService reviewService;
     private final MemberRepository memberRepository;
     private final AuthService authService;
+    private final PasswordEncoder passwordEncoder;
 
 
     public Optional<Member> findById(Long member_id){
@@ -46,7 +48,7 @@ public class MemberService {
     //회원정보 가져오기
     public ResponseMemberInfoDTO getMemberInfoSession(HttpSession session){
         Member member  = authService.getLoggedInMember(session).get();
-        return ResponseMemberInfoDTO.getMemberinfo(member.getName(), member.getPhonenumber(), member.getBirthday());
+        return ResponseMemberInfoDTO.getMemberinfo(member.getEmail(), member.getName(), member.getPhonenumber(), member.getBirthday());
     }
 
     //회원정보 변경
@@ -63,6 +65,24 @@ public class MemberService {
             memberRepository.save(memberInfo);
 
             return memberInfo.getId();
+        }
+
+        throw new NullPointerException();
+    }
+
+    public Long changePassword(HttpSession session ,String newPassword){
+
+        Optional<Member> member = authService.getLoggedInMember(session);
+
+        if(member.isPresent()){
+            Member memberinfo = member.get();
+            if(newPassword.equals("' '")){
+                return memberinfo.getId();
+            }else{
+                memberinfo.setPassword(passwordEncoder.encode(newPassword).toString());
+                memberRepository.save(memberinfo);
+                return memberinfo.getId();
+            }
         }
 
         throw new NullPointerException();
