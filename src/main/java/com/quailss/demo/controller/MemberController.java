@@ -5,6 +5,7 @@ import com.quailss.demo.domain.dto.ResponseMemberInfoDTO;
 import com.quailss.demo.service.MemberService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,9 +42,10 @@ public class MemberController {
     public ResponseEntity<String> setMemberInfo(@RequestBody ResponseMemberInfoDTO responseMemberInfoDTO, HttpSession httpSession){
         try{
             memberService.changeMemberInfo(responseMemberInfoDTO, httpSession);
-            memberService.changePassword(httpSession, responseMemberInfoDTO.getPassword());
             return ResponseEntity.ok("회원정보가 수정되었습니다.");
-        }catch (NullPointerException e){
+        }catch(IllegalArgumentException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }catch (Exception e){
             return ResponseEntity.badRequest().body("회원정보 수정 실패하였습니다.");
         }
     }
