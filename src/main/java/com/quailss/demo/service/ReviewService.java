@@ -134,4 +134,12 @@ public class ReviewService {
         //reviewRepository.updateMemberStatusByMemberId(memberId, status);
     }
 
+    public void updateMemberNameByMemberId(Long memberId, String name) {
+        List<Review> reviews = reviewRepository.findByMemberId(memberId);
+
+        for(Review r : reviews){
+            r.setMemberName(name);
+            reviewRepository.save(r);
+        }
+    }
 }
