@@ -1,7 +1,6 @@
 package com.quailss.demo.domain.dto;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
+import com.quailss.demo.domain.enums.Provider;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -20,12 +19,15 @@ public class ResponseMemberInfoDTO {
 
     private String password;
 
-    public static ResponseMemberInfoDTO getMemberinfo(String email, String name, String phoneNumber, LocalDate birthday){
+    private Provider provider;
+
+    public static ResponseMemberInfoDTO getMemberinfo(String email, String name, String phoneNumber, LocalDate birthday, Provider provider){
         ResponseMemberInfoDTO responseMemberInfoDTO = new ResponseMemberInfoDTO();
         responseMemberInfoDTO.setEmail(email);
         responseMemberInfoDTO.setName(name);
         responseMemberInfoDTO.setPhoneNumber(phoneNumber);
         responseMemberInfoDTO.setBirthday(birthday);
+        responseMemberInfoDTO.setProvider(provider);
 
         return responseMemberInfoDTO;
     }

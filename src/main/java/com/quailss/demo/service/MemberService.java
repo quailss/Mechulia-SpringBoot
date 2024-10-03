@@ -48,13 +48,12 @@ public class MemberService {
     //회원정보 가져오기
     public ResponseMemberInfoDTO getMemberInfoSession(HttpSession session){
         Member member  = authService.getLoggedInMember(session).get();
-        return ResponseMemberInfoDTO.getMemberinfo(member.getEmail(), member.getName(), member.getPhonenumber(), member.getBirthday());
+        return ResponseMemberInfoDTO.getMemberinfo(member.getEmail(), member.getName(), member.getPhonenumber(), member.getBirthday(), member.getProvider());
     }
 
     //회원정보 변경
     @Transactional
-    public Long changeMemberInfo(ResponseMemberInfoDTO responseMemberInfoDTO, HttpSession session){
-
+    public void changeMemberInfo(ResponseMemberInfoDTO responseMemberInfoDTO, HttpSession session){
         Optional<Member> member = authService.getLoggedInMember(session);
 
         if(member.isPresent()){
@@ -62,33 +61,24 @@ public class MemberService {
             memberInfo.setName(responseMemberInfoDTO.getName());
             memberInfo.setPhonenumber(responseMemberInfoDTO.getPhoneNumber());
             memberInfo.setBirthday(responseMemberInfoDTO.getBirthday());
+
+            memberInfo = changePassword(memberInfo,responseMemberInfoDTO.getPassword());
+
             memberRepository.save(memberInfo);
-
-            return memberInfo.getId();
         }
-
-        throw new NullPointerException();
     }
 
     //비밀번호 수정
-    public Long changePassword(HttpSession session ,String newPassword){
-
-        Optional<Member> member = authService.getLoggedInMember(session);
-
-        if(member.isPresent()){
-            Member memberinfo = member.get();
-            if(newPassword.equals("' '")){
-                return memberinfo.getId();
-            }else{
-                if(newPassword.matches("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$")){
-                    memberinfo.setPassword(passwordEncoder.encode(newPassword).toString());
-                    memberRepository.save(memberinfo);
-                    return memberinfo.getId();
-                }
-            }
+    public Member changePassword(Member memberInfo,String newPassword){
+        if(newPassword.trim().length()!=0){
+            if(newPassword.matches("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$")){
+                memberInfo.setPassword(passwordEncoder.encode(newPassword).toString());
+                return memberInfo;
+            }else
+                throw new IllegalArgumentException("유효한 비밀번호를 입력해주세요");
         }
 
-        throw new NullPointerException();
+        return memberInfo;
     }
 
 }

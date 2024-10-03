@@ -48,7 +48,8 @@ public class AuthService {
     public void checkingOfWithdrawnMembers(Member member){
 
         if(member.getStatus().equals(MemberStatus.DEACTIVATED)){
-            member.setStatus(null);
+            member.setStatus(MemberStatus.ACTIVE);
+            member.setDeletedAt(null);
             authRepository.save(member);
 
             reviewService.updateMemberStatusByMemberId(member.getId(), MemberStatus.ACTIVE);
