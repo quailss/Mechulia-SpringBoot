@@ -63,7 +63,7 @@ public class MemberService {
             memberInfo.setBirthday(responseMemberInfoDTO.getBirthday());
 
             memberInfo = changePassword(memberInfo,responseMemberInfoDTO.getPassword());
-
+            reviewService.updateMemberNameByMemberId(memberInfo.getId(), responseMemberInfoDTO.getName());
             memberRepository.save(memberInfo);
         }
     }
