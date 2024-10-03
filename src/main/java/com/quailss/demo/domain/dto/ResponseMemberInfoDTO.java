@@ -1,5 +1,6 @@
 package com.quailss.demo.domain.dto;
 
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
@@ -17,10 +18,6 @@ public class ResponseMemberInfoDTO {
 
     private LocalDate birthday;
 
-    @Pattern(
-            regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
-            message = "비밀번호는 영문, 숫자, 특수문자 조합으로 8자 이상 입력해야 합니다."
-    )
     private String password;
 
     public static ResponseMemberInfoDTO getMemberinfo(String email, String name, String phoneNumber, LocalDate birthday){

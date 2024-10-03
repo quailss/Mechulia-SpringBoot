@@ -70,6 +70,7 @@ public class MemberService {
         throw new NullPointerException();
     }
 
+    //비밀번호 수정
     public Long changePassword(HttpSession session ,String newPassword){
 
         Optional<Member> member = authService.getLoggedInMember(session);
@@ -79,9 +80,11 @@ public class MemberService {
             if(newPassword.equals("' '")){
                 return memberinfo.getId();
             }else{
-                memberinfo.setPassword(passwordEncoder.encode(newPassword).toString());
-                memberRepository.save(memberinfo);
-                return memberinfo.getId();
+                if(newPassword.matches("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$")){
+                    memberinfo.setPassword(passwordEncoder.encode(newPassword).toString());
+                    memberRepository.save(memberinfo);
+                    return memberinfo.getId();
+                }
             }
         }
 
