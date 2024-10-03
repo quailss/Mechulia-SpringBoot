@@ -7,6 +7,7 @@ import com.quailss.demo.domain.enums.MemberStatus;
 import com.quailss.demo.domain.enums.Provider;
 import com.quailss.demo.repository.AuthRepository;
 import jakarta.servlet.http.HttpSession;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+    private final ReviewService reviewService;
     private final AuthRepository authRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -42,12 +44,14 @@ public class AuthService {
 
         throw new NullPointerException();
     }
-
-    private void checkingOfWithdrawnMembers(Member member){
+    @Transactional
+    public void checkingOfWithdrawnMembers(Member member){
 
         if(member.getStatus().equals(MemberStatus.DEACTIVATED)){
             member.setStatus(null);
             authRepository.save(member);
+
+            reviewService.updateMemberStatusByMemberId(member.getId(), MemberStatus.ACTIVE);
         }
 
     }
