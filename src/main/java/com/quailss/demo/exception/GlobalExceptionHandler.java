@@ -46,6 +46,14 @@ public class GlobalExceptionHandler {
         return ex.getMessage();
     }
 
+    @ExceptionHandler(NullPointerException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleNullPointerException(NullPointerException ex) {
+        return ex.getMessage();
+    }
+
+
+
     // 그 외 모든 예외 처리
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

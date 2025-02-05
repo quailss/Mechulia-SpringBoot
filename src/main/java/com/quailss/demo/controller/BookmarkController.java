@@ -36,12 +36,8 @@ public class BookmarkController {
                                                @PathVariable Long recipeId){
         Member loggedInMember = authService.getLoggedInMember(session)
                 .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("로그인하지 않은 사용자입니다."));
-        try {
-            boolean isBookmarked = bookmarkService.findByMemberIdAndRecipeId(loggedInMember.getId(), recipeId).isPresent();
-            return ResponseEntity.ok(isBookmarked);
-        }catch (EntityNotFoundException.RecipeNotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
-        }
+        boolean isBookmarked = bookmarkService.findByMemberIdAndRecipeId(loggedInMember.getId(), recipeId).isPresent();
+        return ResponseEntity.ok(isBookmarked);
     }
 
     @PostMapping("/{recipeId}")
@@ -49,11 +45,7 @@ public class BookmarkController {
                                               @PathVariable Long recipeId){
         Member loggedInMember = authService.getLoggedInMember(session)
                 .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("로그인하지 않은 사용자입니다."));
-        try {
-            bookmarkService.addBookmark(recipeId, loggedInMember);
-        }catch (EntityNotFoundException.RecipeNotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+        bookmarkService.addBookmark(recipeId, loggedInMember);
         return ResponseEntity.ok("Bookmark successfully saved");
     }
 
@@ -62,16 +54,8 @@ public class BookmarkController {
         Member loggedInMember = authService.getLoggedInMember(session)
                 .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("로그인하지 않은 사용자입니다."));
 
-        try {
-            bookmarkService.deleteBookmark(loggedInMember, bookmarkId);
-            return ResponseEntity.ok("Bookmark deleted successfully");
-        }catch (EntityNotFoundException.BookmarkNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 에러가 발생했습니다.");
-        }
+        bookmarkService.deleteBookmark(loggedInMember, bookmarkId);
+        return ResponseEntity.ok("Bookmark deleted successfully");
     }
 
     @DeleteMapping("/recipe/{recipeId}")
@@ -79,15 +63,7 @@ public class BookmarkController {
         Member loggedInMember = authService.getLoggedInMember(session)
                 .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("로그인하지 않은 사용자입니다."));
 
-        try {
-            bookmarkService.deleteBookmarkByRecipe(loggedInMember, recipeId);
-            return ResponseEntity.ok("Bookmark deleted successfully");
-        }catch(EntityNotFoundException.RecipeNotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
+        bookmarkService.deleteBookmarkByRecipe(loggedInMember, recipeId);
+        return ResponseEntity.ok("Bookmark deleted successfully");
     }
 }
