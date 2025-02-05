@@ -60,12 +60,8 @@ public class ReviewController {
                                               @RequestBody ReviewCommand reviewCommand){
         Member loggedInMember = authService.getLoggedInMember(session)
                 .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("로그인하지 않은 사용자입니다."));
-        try {
-            reviewService.insertReview(recipeId, loggedInMember, reviewCommand.getScore(), reviewCommand.getContent());
-            return ResponseEntity.ok("Review successfully saved");
-        }catch (EntityNotFoundException.RecipeNotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+        reviewService.insertReview(recipeId, loggedInMember, reviewCommand.getScore(), reviewCommand.getContent());
+        return ResponseEntity.ok("Review successfully saved");
     }
 
     @PutMapping("/{reviewId}")
@@ -75,12 +71,8 @@ public class ReviewController {
         Member loggedInMember = authService.getLoggedInMember(session)
                 .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("로그인하지 않은 사용자입니다."));
 
-        try {
-            reviewService.updateReview(reviewId, loggedInMember, reviewCommand);
-            return ResponseEntity.ok("Review updated successfully");
-        }catch (EntityNotFoundException.RecipeNotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
+        reviewService.updateReview(reviewId, loggedInMember, reviewCommand);
+        return ResponseEntity.ok("Review updated successfully");
     }
 
     @DeleteMapping("/{reviewId}")
@@ -88,13 +80,7 @@ public class ReviewController {
         Member loggedInMember = authService.getLoggedInMember(session)
                 .orElseThrow(() -> new AuthenticationCredentialsNotFoundException("로그인하지 않은 사용자입니다."));
 
-        try {
-            reviewService.deleteReview(reviewId, loggedInMember);
-            return ResponseEntity.ok("Review deleted successfully");
-        }catch(EntityNotFoundException.ReviewNotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
+        reviewService.deleteReview(reviewId, loggedInMember);
+        return ResponseEntity.ok("Review deleted successfully");
     }
 }
